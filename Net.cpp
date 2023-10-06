@@ -192,10 +192,10 @@ int Net::getShortestPath(int start_station_id, int end_station_id, QList<int>& p
 
 // delete the old edges matrix and create a new one
 void Net::flushEdgesMatrix() {
-    for (int i = 0; i < edges_matrix_.station_num; i++) {
-        delete[] edges_matrix_.matrix[i];
-    }
     if (edges_matrix_.station_num != 0) {
+        for (int i = 0; i < edges_matrix_.station_num; i++) {
+            delete[] edges_matrix_.matrix[i];
+        }
         delete[] edges_matrix_.matrix;
     }
 
