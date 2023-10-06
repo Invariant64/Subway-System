@@ -10,19 +10,33 @@
 
 
 Net::Net() {
+    station_num_ = 0;
+    edge_num_ = 0;
     stations_ = new QMap<int, Station>();
     edges_ = new QMap<int, Edge>();
+
+    edges_matrix_.station_num = 0;
 }
 
 Net::Net(const QString& stations_file_name, const QString& edges_file_name) {
+    station_num_ = 0;
+    edge_num_ = 0;
     stations_ = new QMap<int, Station>();
     edges_ = new QMap<int, Edge>();
+
+    edges_matrix_.station_num = 0;
+
     loadNetFromFile(stations_file_name, edges_file_name);
 }
 
 Net::~Net() {
     delete stations_;
     delete edges_;
+
+    for (int i = 0; i < edges_matrix_.station_num; i++) {
+        delete[] edges_matrix_.matrix[i];
+    }
+    delete[] edges_matrix_.matrix;
 }
 
 // load stations and edges from file
@@ -33,6 +47,7 @@ bool Net::loadNetFromFile(const QString& stations_file_name, const QString& edge
     if (loadEdgesFromFile(edges_file_name)) {
         return false;
     }
+    flushEdgesMatrix();
     return true;
 }
 
@@ -88,10 +103,12 @@ bool Net::loadEdgesFromFile(const QString& file_name) {
 }
 
 void Net::addStation(const Station& station) {
+    station_num_++;
     stations_->insert(station.getId(), station);
 }
 
 void Net::addEdge(const Edge& edge) {
+    edge_num_++;
     edges_->insert(edge.getId(), edge);
 }
 
@@ -110,5 +127,98 @@ Station Net::getStationById(int id) const {
 Edge Net::getEdgeById(int id) const {
     return edges_->value(id);
 }
+
+// use Dijkstra algorithm to get the shortest path
+// weight_mode = 0: time, weight_mode = 1: distance
+int Net::getShortestPath(int start_station_id, int end_station_id, QList<int>& path, int weight_mode) {
+    if (edges_matrix_.station_num != station_num_ || edges_matrix_.edge_num != edge_num_) {
+        flushEdgesMatrix();
+    }
+
+    // initialize distance and path
+    int* distance = new int[station_num_];
+    int* visited = new int[station_num_];
+    int* prev = new int[station_num_];
+    for (int i = 0; i < station_num_; i++) {
+        distance[i] = getEdgeWeight(start_station_id, i, weight_mode);
+        visited[i] = 0;
+        if (distance[i] == -1) {
+            prev[i] = -1;
+        } else {
+            prev[i] = start_station_id;
+        }
+    }
+    distance[start_station_id] = 0;
+    visited[start_station_id] = 1;
+
+    // Dijkstra algorithm
+    for (int i = 1; i < station_num_; i++) {
+        int min = INT_MAX;
+        int k = -1;
+        for (int j = 0; j < station_num_; j++) {
+            if (!visited[j] && distance[j] != -1 && distance[j] < min) {
+                min = distance[j];
+                k = j;
+            }
+        }
+        if (k == -1) {
+            break;
+        }
+        visited[k] = 1;
+        for (int j = 0; j < station_num_; j++) {
+            if (!visited[j] && edges_matrix_.matrix[k][j] != -1 && (distance[k] + getEdgeWeight(k, j, weight_mode) < distance[j] || distance[j] == -1)){
+                distance[j] = distance[k] + getEdgeWeight(k, j, weight_mode);
+                prev[j] = k;
+            }
+        }
+    }
+
+    // get path
+    int current_station_id = end_station_id;
+    while (current_station_id != start_station_id) {
+        path.push_front(current_station_id);
+        current_station_id = prev[current_station_id];
+    }
+    path.push_front(start_station_id);
+
+    int ans = distance[end_station_id];
+
+    delete[] distance;
+    delete[] visited;
+    delete[] prev;
+
+    return ans;
+}
+
+// delete the old edges matrix and create a new one
+void Net::flushEdgesMatrix() {
+    for (int i = 0; i < edges_matrix_.station_num; i++) {
+        delete[] edges_matrix_.matrix[i];
+    }
+    if (edges_matrix_.station_num != 0) {
+        delete[] edges_matrix_.matrix;
+    }
+
+    edges_matrix_.station_num = station_num_;
+    edges_matrix_.matrix = new int*[station_num_];
+    for (int i = 0; i < station_num_; i++) {
+        edges_matrix_.matrix[i] = new int[station_num_];
+        for (int j = 0; j < station_num_; j++) {
+            edges_matrix_.matrix[i][j] = -1;
+        }
+    }
+
+    edges_matrix_.edge_num = edge_num_;
+    for (const auto& edge : *edges_) {
+        edges_matrix_.matrix[edge.getStationId()][edge.getNextStationId()] = edge.getId();
+    }
+}
+
+int Net::getEdgeWeight(int start_station_id, int end_station_id, int weight_mode) {
+    return weight_mode == 0 ? edges_->value(edges_matrix_.matrix[start_station_id][end_station_id]).getWeightTime() :
+           edges_->value(edges_matrix_.matrix[start_station_id][end_station_id]).getWeightDistance();
+}
+
+
 
 

@@ -13,13 +13,24 @@
 
 class Net {
 private:
+    int station_num_;
+    int edge_num_;
+
     QMap<int, Station> *stations_;
     QMap<int, Edge> *edges_;
 
+    struct EdgeMatrix {
+        int** matrix;
+        int station_num;
+        int edge_num;
+    } edges_matrix_;
+
+    int getEdgeWeight(int start_station_id, int end_station_id, int weight_mode);
+
 public:
     Net();
-    explicit Net(const QString& stations_file_name, const QString& edges_file_name);
     ~Net();
+    explicit Net(const QString& stations_file_name, const QString& edges_file_name);
 
     bool loadNetFromFile(const QString& stations_file_name, const QString& edges_file_name);
     bool loadStationsFromFile(const QString& file_name);
@@ -33,6 +44,11 @@ public:
 
     Station getStationById(int id) const;
     Edge getEdgeById(int id) const;
+
+    int getShortestPath(int start_station_id, int end_station_id, QList<int>& path, int weight_mode = 0);
+
+    void flushEdgesMatrix();
+
 };
 
 

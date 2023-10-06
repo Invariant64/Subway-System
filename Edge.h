@@ -17,8 +17,8 @@ private:
 
 public:
     Edge() = default;
-    Edge(int id, int line_id, int station_id, int next_station_id, int weight_time, int weight_distance);
     ~Edge() = default;
+    Edge(int id, int line_id, int station_id, int next_station_id, int weight_time, int weight_distance);
 
     int getId() const;
     int getLineId() const;
