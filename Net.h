@@ -48,6 +48,7 @@ public:
     Edge getEdgeById(int id) const;
 
     int getShortestPath(int start_station_id, int end_station_id, QList<int>& path, int weight_mode = 0);
+    int getShortestPath(const QString& start_station_name, const QString& end_station_name, QList<int>& path, int weight_mode = 0);
 
     void flushEdgesMatrix();
 

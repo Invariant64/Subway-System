@@ -190,6 +190,11 @@ int Net::getShortestPath(int start_station_id, int end_station_id, QList<int>& p
     return ans;
 }
 
+int Net::getShortestPath(const QString& start_station_name, const QString& end_station_name, QList<int>& path, int weight_mode) {
+    return getShortestPath(station_name_to_id_->value(start_station_name),
+                           station_name_to_id_->value(end_station_name), path, weight_mode);
+}
+
 // delete the old edges matrix and create a new one
 void Net::flushEdgesMatrix() {
     if (edges_matrix_.station_num != 0) {
