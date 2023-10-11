@@ -19,6 +19,8 @@ private:
     QMap<int, Station> *stations_;
     QMap<int, Edge> *edges_;
 
+    QMap<QString, int> *station_name_to_id_;
+
     struct EdgeMatrix {
         int** matrix;
         int station_num;
