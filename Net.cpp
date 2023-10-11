@@ -14,6 +14,7 @@ Net::Net() {
     edge_num_ = 0;
     stations_ = new QMap<int, Station>();
     edges_ = new QMap<int, Edge>();
+    station_name_to_id_ = new QMap<QString, int>();
 
     edges_matrix_.station_num = 0;
 }
@@ -23,6 +24,7 @@ Net::Net(const QString& stations_file_name, const QString& edges_file_name) {
     edge_num_ = 0;
     stations_ = new QMap<int, Station>();
     edges_ = new QMap<int, Edge>();
+    station_name_to_id_ = new QMap<QString, int>();
 
     edges_matrix_.station_num = 0;
 
