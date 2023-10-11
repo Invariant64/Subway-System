@@ -14,26 +14,30 @@ Net::Net() {
     edge_num_ = 0;
     stations_ = new QMap<int, Station>();
     edges_ = new QMap<int, Edge>();
+    lines_ = new QMap<int, Line>();
     station_name_to_id_ = new QMap<QString, int>();
 
     edges_matrix_.station_num = 0;
 }
 
-Net::Net(const QString& stations_file_name, const QString& edges_file_name) {
+Net::Net(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name) {
     station_num_ = 0;
     edge_num_ = 0;
     stations_ = new QMap<int, Station>();
     edges_ = new QMap<int, Edge>();
+    lines_ = new QMap<int, Line>();
     station_name_to_id_ = new QMap<QString, int>();
 
     edges_matrix_.station_num = 0;
 
-    loadNetFromFile(stations_file_name, edges_file_name);
+    loadNetFromFile(stations_file_name, edges_file_name, lines_file_name);
 }
 
 Net::~Net() {
     delete stations_;
     delete edges_;
+    delete lines_;
+    delete station_name_to_id_;
 
     for (int i = 0; i < edges_matrix_.station_num; i++) {
         delete[] edges_matrix_.matrix[i];
@@ -42,11 +46,14 @@ Net::~Net() {
 }
 
 // load stations and edges from file
-bool Net::loadNetFromFile(const QString& stations_file_name, const QString& edges_file_name) {
+bool Net::loadNetFromFile(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name) {
     if (!loadStationsFromFile(stations_file_name)) {
         return false;
     }
     if (!loadEdgesFromFile(edges_file_name)) {
+        return false;
+    }
+    if (!loadLinesFromFile(lines_file_name)) {
         return false;
     }
     flushEdgesMatrix();
@@ -103,6 +110,28 @@ bool Net::loadEdgesFromFile(const QString& file_name) {
     return true;
 }
 
+// each line of the file should be in the format:
+// line_id line_name
+bool Net::loadLinesFromFile(const QString& file_name) {
+    QFile file(file_name);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList fields = line.split(" ");
+        if (fields.size() != 2) {
+            return false;
+        }
+        int line_id = fields[0].toInt();
+        QString line_name = fields[1];
+        Line l(line_id, line_name);
+        lines_->insert(line_id, l);
+    }
+    return true;
+}
+
 void Net::addStation(const Station& station) {
     station_num_++;
     stations_->insert(station.getId(), station);
@@ -120,6 +149,10 @@ QMap<int, Station> *Net::getStations() const {
 
 QMap<int, Edge> *Net::getEdges() const {
     return edges_;
+}
+
+QMap<int, Line> *Net::getLines() const {
+    return lines_;
 }
 
 Station Net::getStationById(int id) const {
@@ -236,6 +269,10 @@ int Net::getStationIdByName(const QString& station_name) const {
 
 Edge Net::getEdgeByStationId(int station_id, int next_station_id) const {
     return edges_->value(edges_matrix_.matrix[station_id][next_station_id]);
+}
+
+Line Net::getLineById(int line_id) const {
+    return lines_->value(line_id);
 }
 
 

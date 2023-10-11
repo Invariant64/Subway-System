@@ -10,6 +10,7 @@
 #include <QList>
 #include "Station.h"
 #include "Edge.h"
+#include "Line.h"
 
 class Net {
 private:
@@ -18,6 +19,7 @@ private:
 
     QMap<int, Station> *stations_;
     QMap<int, Edge> *edges_;
+    QMap<int, Line> *lines_;
 
     QMap<QString, int> *station_name_to_id_;
 
@@ -32,17 +34,19 @@ private:
 public:
     Net();
     ~Net();
-    explicit Net(const QString& stations_file_name, const QString& edges_file_name);
+    explicit Net(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name);
 
-    bool loadNetFromFile(const QString& stations_file_name, const QString& edges_file_name);
+    bool loadNetFromFile(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name);
     bool loadStationsFromFile(const QString& file_name);
     bool loadEdgesFromFile(const QString& file_name);
+    bool loadLinesFromFile(const QString& file_name);
 
     void addStation(const Station& station);
     void addEdge(const Edge& edge);
 
     QMap<int, Station> *getStations() const;
     QMap<int, Edge> *getEdges() const;
+    QMap<int, Line> *getLines() const;
 
     Station getStationById(int id) const;
     Edge getEdgeById(int id) const;
@@ -55,6 +59,8 @@ public:
     int getStationIdByName(const QString& station_name) const;
 
     Edge getEdgeByStationId(int station_id, int next_station_id) const;
+
+    Line getLineById(int line_id) const;
 
 };
 
