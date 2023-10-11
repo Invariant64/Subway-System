@@ -41,10 +41,10 @@ Net::~Net() {
 
 // load stations and edges from file
 bool Net::loadNetFromFile(const QString& stations_file_name, const QString& edges_file_name) {
-    if (loadStationsFromFile(stations_file_name)) {
+    if (!loadStationsFromFile(stations_file_name)) {
         return false;
     }
-    if (loadEdgesFromFile(edges_file_name)) {
+    if (!loadEdgesFromFile(edges_file_name)) {
         return false;
     }
     flushEdgesMatrix();
@@ -62,7 +62,7 @@ bool Net::loadStationsFromFile(const QString& file_name) {
     while (!in.atEnd()) {
         QString line = in.readLine();
         QStringList fields = line.split(" ");
-        if (fields.size() != 4) {
+        if (fields.size() != 2) {
             return false;
         }
         int station_id = fields[0].toInt();
