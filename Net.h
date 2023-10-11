@@ -51,6 +51,10 @@ public:
 
     void flushEdgesMatrix();
 
+    int getStationIdByName(const QString& station_name) const;
+
+    Edge getEdgeByStationId(int station_id, int next_station_id) const;
+
 };
 
 
