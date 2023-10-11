@@ -69,8 +69,7 @@ bool Net::loadStationsFromFile(const QString& file_name) {
         }
         int station_id = fields[0].toInt();
         QString station_name = fields[1];
-        QPointF station_position = QPointF(fields[2].toDouble(), fields[3].toDouble());
-        Station station(station_id, station_name, station_position);
+        Station station(station_id, station_name);
         addStation(station);
     }
     return true;
@@ -107,6 +106,7 @@ bool Net::loadEdgesFromFile(const QString& file_name) {
 void Net::addStation(const Station& station) {
     station_num_++;
     stations_->insert(station.getId(), station);
+    station_name_to_id_->insert(station.getName(), station.getId());
 }
 
 void Net::addEdge(const Edge& edge) {
