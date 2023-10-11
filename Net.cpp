@@ -220,8 +220,20 @@ void Net::flushEdgesMatrix() {
 }
 
 int Net::getEdgeWeight(int start_station_id, int end_station_id, int weight_mode) {
-    return weight_mode == 0 ? edges_->value(edges_matrix_.matrix[start_station_id][end_station_id]).getWeightTime() :
-           edges_->value(edges_matrix_.matrix[start_station_id][end_station_id]).getWeightDistance();
+    int edge_id = edges_matrix_.matrix[start_station_id][end_station_id];
+    if (edge_id == -1) {
+        return -1;
+    }
+    return weight_mode == 0 ? edges_->value(edge_id).getWeightTime() :
+           edges_->value(edge_id).getWeightDistance();
+}
+
+int Net::getStationIdByName(const QString& station_name) const {
+    return station_name_to_id_->value(station_name);
+}
+
+Edge Net::getEdgeByStationId(int station_id, int next_station_id) const {
+    return edges_->value(edges_matrix_.matrix[station_id][next_station_id]);
 }
 
 
