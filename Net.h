@@ -19,7 +19,7 @@ private:
 
     QMap<int, Station> *stations_;
     QMap<int, Edge> *edges_;
-    QMap<int, Line> *lines_;
+    QMap<int, Line*> *lines_;
 
     QMap<QString, int> *station_name_to_id_;
 
@@ -46,7 +46,7 @@ public:
 
     QMap<int, Station> *getStations() const;
     QMap<int, Edge> *getEdges() const;
-    QMap<int, Line> *getLines() const;
+    QMap<int, Line*> *getLines() const;
 
     Station getStationById(int id) const;
     Edge getEdgeById(int id) const;
@@ -60,7 +60,7 @@ public:
 
     Edge getEdgeByStationId(int station_id, int next_station_id) const;
 
-    Line getLineById(int line_id) const;
+    Line* getLineById(int line_id) const;
 
 };
 
