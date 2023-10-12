@@ -14,7 +14,7 @@ Net::Net() {
     edge_num_ = 0;
     stations_ = new QMap<int, Station>();
     edges_ = new QMap<int, Edge>();
-    lines_ = new QMap<int, Line>();
+    lines_ = new QMap<int, Line*>();
     station_name_to_id_ = new QMap<QString, int>();
 
     edges_matrix_.station_num = 0;
@@ -25,7 +25,7 @@ Net::Net(const QString& stations_file_name, const QString& edges_file_name, cons
     edge_num_ = 0;
     stations_ = new QMap<int, Station>();
     edges_ = new QMap<int, Edge>();
-    lines_ = new QMap<int, Line>();
+    lines_ = new QMap<int, Line*>();
     station_name_to_id_ = new QMap<QString, int>();
 
     edges_matrix_.station_num = 0;
@@ -111,7 +111,8 @@ bool Net::loadEdgesFromFile(const QString& file_name) {
 }
 
 // each line of the file should be in the format:
-// line_id line_name
+// line_id line_name station_num
+// station_id station_id station_id ...
 bool Net::loadLinesFromFile(const QString& file_name) {
     QFile file(file_name);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -121,13 +122,19 @@ bool Net::loadLinesFromFile(const QString& file_name) {
     while (!in.atEnd()) {
         QString line = in.readLine();
         QStringList fields = line.split(" ");
-        if (fields.size() != 2) {
+        if (fields.size() < 3) {
             return false;
         }
         int line_id = fields[0].toInt();
         QString line_name = fields[1];
-        Line l(line_id, line_name);
-        lines_->insert(line_id, l);
+        int station_num = fields[2].toInt();
+        line = in.readLine();
+        fields = line.split(" ");
+        Line *line1 = new Line(line_id, line_name);
+        for (int i = 0; i < station_num; i++) {
+            line1->addStationId(fields[i].toInt());
+        }
+        lines_->insert(line_id, line1);
     }
     return true;
 }
@@ -151,7 +158,7 @@ QMap<int, Edge> *Net::getEdges() const {
     return edges_;
 }
 
-QMap<int, Line> *Net::getLines() const {
+QMap<int, Line*> *Net::getLines() const {
     return lines_;
 }
 
@@ -271,7 +278,7 @@ Edge Net::getEdgeByStationId(int station_id, int next_station_id) const {
     return edges_->value(edges_matrix_.matrix[station_id][next_station_id]);
 }
 
-Line Net::getLineById(int line_id) const {
+Line* Net::getLineById(int line_id) const {
     return lines_->value(line_id);
 }
 
