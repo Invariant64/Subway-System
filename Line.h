@@ -7,19 +7,25 @@
 
 
 #include <QString>
+#include <QList>
 
 class Line {
 private:
     int id_;
     QString name_;
+    QList<int> *stations_id_;
 
 public:
-    Line() = default;
-    ~Line() = default;
+    Line();
+    ~Line();
     Line(int id, QString name);
 
     int getId() const;
     QString getName() const;
+
+    QList<int> *getStationsId() const;
+
+    void addStationId(int station_id);
 };
 
 
