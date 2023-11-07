@@ -13,14 +13,16 @@ class Station {
 private:
     int id_;
     QString name_;
+    QPoint position_;
 
 public:
     Station() = default;
-    Station(int id, QString name);
     ~Station() = default;
+    Station(int id, QString name, QPoint position);
 
     int getId() const;
     QString getName() const;
+    QPoint getPosition() const;
 };
 
 

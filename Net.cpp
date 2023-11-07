@@ -71,12 +71,15 @@ bool Net::loadStationsFromFile(const QString& file_name) {
     while (!in.atEnd()) {
         QString line = in.readLine();
         QStringList fields = line.split(" ");
-        if (fields.size() != 2) {
+        if (fields.size() != 4 && fields.size() != 2) {
             return false;
         }
         int station_id = fields[0].toInt();
         QString station_name = fields[1];
-        Station station(station_id, station_name);
+        int station_position_x = fields.size() == 4 ? fields[2].toInt() : 100;
+        int station_position_y = fields.size() == 4 ? fields[3].toInt() : 100;
+        QPoint station_position(station_position_x, station_position_y);
+        Station station(station_id, station_name, station_position);
         addStation(station);
     }
     return true;

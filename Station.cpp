@@ -6,8 +6,8 @@
 
 #include <utility>
 
-Station::Station(int id, QString name) :
-        id_(id), name_(std::move(name)) {}
+Station::Station(int id, QString name, QPoint position) :
+        id_(id), name_(std::move(name)), position_(position) {}
 
 int Station::getId() const {
     return id_;
@@ -15,4 +15,8 @@ int Station::getId() const {
 
 QString Station::getName() const {
     return name_;
+}
+
+QPoint Station::getPosition() const {
+    return position_;
 }
