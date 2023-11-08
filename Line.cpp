@@ -15,7 +15,7 @@ Line::~Line() {
     delete stations_id_;
 }
 
-Line::Line(int id, QString name) : id_(id), name_(std::move(name)) {
+Line::Line(int id, QString name, QColor color) : id_(id), name_(std::move(name)), color_(color) {
     stations_id_ = new QList<int>();
 }
 
@@ -25,6 +25,10 @@ int Line::getId() const {
 
 QString Line::getName() const {
     return name_;
+}
+
+QColor Line::getColor() const {
+    return color_;
 }
 
 QList<int> *Line::getStationsId() const {

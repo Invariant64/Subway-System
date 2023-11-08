@@ -8,20 +8,23 @@
 
 #include <QString>
 #include <QList>
+#include <QColor>
 
 class Line {
 private:
     int id_;
     QString name_;
+    QColor color_;
     QList<int> *stations_id_;
 
 public:
     Line();
     ~Line();
-    Line(int id, QString name);
+    Line(int id, QString name, QColor color);
 
     int getId() const;
     QString getName() const;
+    QColor getColor() const;
 
     QList<int> *getStationsId() const;
 
