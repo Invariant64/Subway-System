@@ -76,8 +76,8 @@ bool Net::loadStationsFromFile(const QString& file_name) {
         }
         int station_id = fields[0].toInt();
         QString station_name = fields[1];
-        int station_position_x = fields.size() == 4 ? fields[2].toInt() : 100;
-        int station_position_y = fields.size() == 4 ? fields[3].toInt() : 100;
+        int station_position_x = fields.size() == 4 ? fields[2].toInt() : random() % 1000;
+        int station_position_y = fields.size() == 4 ? fields[3].toInt() : random() % 1000;
         QPoint station_position(station_position_x, station_position_y);
         Station station(station_id, station_name, station_position);
         addStation(station);
@@ -125,15 +125,16 @@ bool Net::loadLinesFromFile(const QString& file_name) {
     while (!in.atEnd()) {
         QString line = in.readLine();
         QStringList fields = line.split(" ");
-        if (fields.size() < 3) {
+        if (fields.size() != 4) {
             return false;
         }
         int line_id = fields[0].toInt();
         QString line_name = fields[1];
         int station_num = fields[2].toInt();
+        QColor line_color = QColor(fields[3]);
         line = in.readLine();
         fields = line.split(" ");
-        Line *line1 = new Line(line_id, line_name);
+        Line *line1 = new Line(line_id, line_name, line_color);
         for (int i = 0; i < station_num; i++) {
             line1->addStationId(fields[i].toInt());
         }
