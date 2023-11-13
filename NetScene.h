@@ -8,6 +8,9 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsProxyWidget>
+#include <QApplication>
+#include <QClipboard>
+#include <QImageReader>
 #include "SelectionWidget.h"
 #include "Net.h"
 
@@ -15,9 +18,10 @@ class NetScene : public QGraphicsScene {
     Q_OBJECT
 
 private:
-    Net *net;
+    Net *net_;
     void initStationButtons();
     void initEdges();
+    void initUI();
 
 public:
     SelectionWidget *selection_widget_;

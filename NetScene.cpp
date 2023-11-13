@@ -6,65 +6,62 @@
 #include "StationButton.h"
 
 NetScene::NetScene() {
-    selection_widget_ = new SelectionWidget();
-    proxy_selection_widget_ = addWidget(selection_widget_);
-    proxy_selection_widget_->setPos(0, 0);
-    proxy_selection_widget_->hide();
+    net_ = nullptr;
+    initUI();
 }
 
 NetScene::~NetScene() {
     delete selection_widget_;
-    delete proxy_selection_widget_;
+}
+
+void NetScene::initUI() {
+    selection_widget_ = new SelectionWidget();
+    proxy_selection_widget_ = new QGraphicsProxyWidget();
+    proxy_selection_widget_ = addWidget(selection_widget_);
+    proxy_selection_widget_->setPos(0, 0);
+    proxy_selection_widget_->setZValue(1);
+    proxy_selection_widget_->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+    proxy_selection_widget_->hide();
+    //设置背景图片
+    QImageReader::setAllocationLimit(0);
+    QPixmap pixmap = QPixmap("../resources/newmap.jpeg");
+    if (pixmap.isNull()) {
+        qDebug() << "Failed to load background image!";
+    }
+    setBackgroundBrush(QBrush(pixmap));
 }
 
 void NetScene::initStationButtons() {
-    QMap<int, Station> *stations = net->getStations();
+    QMap<int, Station> *stations = net_->getStations();
     for (auto station : *stations) {
-        StationButton *station_button = new StationButton(&station);
-        connect(station_button, &StationButton::clicked, this, [=](){
-            selection_widget_->move(station_button->getPosition().x(), station_button->getPosition().y() + 50);
-            selection_widget_->show();
-            selection_widget_->setCurrentStationName(station_button->getName());
-        });
-        QGraphicsProxyWidget *proxyWidget = addWidget(station_button);
-        proxyWidget->setPos(station_button->getPosition());
-        addWidget(station_button);
+        StationButton *station_button = new StationButton(&station, selection_widget_);
+        addItem(station_button);
     }
 }
 
 void NetScene::initEdges() {
-    QMap<int, Line*> *lines = net->getLines();
-    for (auto line : *lines) {
-        QList<int> *stations_id = line->getStationsId();
-        for (int i = 0; i < stations_id->size() - 1; i++) {
-            Station start_station = net->getStationById(stations_id->at(i));
-            Station end_station = net->getStationById(stations_id->at(i + 1));
-            QGraphicsLineItem *line_item = new QGraphicsLineItem(start_station.getPosition().x(),
-                                                                 start_station.getPosition().y(),
-                                                                 end_station.getPosition().x(),
-                                                                 end_station.getPosition().y());
-            QPen *pen = new QPen();
-            pen->setWidth(5);
-            pen->setColor(line->getColor());
-            line_item->setPen(*pen);
-            addItem(line_item);
-        }
+    QMap<int, Edge> *edges = net_->getEdges();
+    for (auto edge : *edges) {
+        QPoint start = net_->getStationById(edge.getStationId()).getPosition();
+        QPoint end = net_->getStationById(edge.getNextStationId()).getPosition();
+        QGraphicsLineItem *line_item = new QGraphicsLineItem(start.x(), start.y(), end.x(), end.y());
+        QPen *pen = new QPen();
+        pen->setWidth(50);
+        pen->setColor(net_->getLineById(edge.getLineId())->getColor());
+        line_item->setPen(*pen);
+        addItem(line_item);
     }
 }
 
 void NetScene::setNet(Net *net) {
-    this->net = net;
+    this->net_ = net;
 }
 
 bool NetScene::init() {
-    if (net == nullptr) {
+    if (net_ == nullptr) {
         return false;
     }
     initEdges();
     initStationButtons();
-    // 把selection放到最顶层显示
-    proxy_selection_widget_->setZValue(1);
-    // selection不随着scene的缩放而缩放
-    proxy_selection_widget_->setFlag(QGraphicsItem::ItemIgnoresTransformations);
     return true;
 }
