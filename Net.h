@@ -62,6 +62,8 @@ public:
 
     Line* getLineById(int line_id) const;
 
+    Line* getFirstLineByStationName(const QString& station_name) const;
+
 };
 
 

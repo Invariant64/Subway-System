@@ -76,8 +76,8 @@ bool Net::loadStationsFromFile(const QString& file_name) {
         }
         int station_id = fields[0].toInt();
         QString station_name = fields[1];
-        int station_position_x = fields.size() == 4 ? fields[2].toInt() : random() % 1000;
-        int station_position_y = fields.size() == 4 ? fields[3].toInt() : random() % 1000;
+        int station_position_x = fields.size() == 4 ? fields[2].toInt() : random() % 4500;
+        int station_position_y = fields.size() == 4 ? fields[3].toInt() : random() % 3000;
         QPoint station_position(station_position_x, station_position_y);
         Station station(station_id, station_name, station_position);
         addStation(station);
@@ -284,6 +284,16 @@ Edge Net::getEdgeByStationId(int station_id, int next_station_id) const {
 
 Line* Net::getLineById(int line_id) const {
     return lines_->value(line_id);
+}
+
+Line *Net::getFirstLineByStationName(const QString &station_name) const {
+    int station_id = station_name_to_id_->value(station_name);
+    for (auto line : *lines_) {
+        if (line->getStationsId()->contains(station_id)) {
+            return line;
+        }
+    }
+    return nullptr;
 }
 
 
