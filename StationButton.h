@@ -7,32 +7,38 @@
 
 
 #include <QPushButton>
+#include <QPainter>
+#include <QGraphicsItem>
+#include <QGraphicsEllipseItem>
+#include <QMouseEvent>
+#include <QGraphicsProxyWidget>
+#include <QGraphicsSceneMouseEvent>
 #include "Station.h"
+#include "SelectionWidget.h"
 
-class StationButton : public QPushButton {
+class StationButton : public QGraphicsEllipseItem {
 private:
     int id_;
     QString name_;
     QPoint position_;
 
-    const int RADIUS = 20;
+    SelectionWidget *selection_widget_;
 
-    const QString normal_style = QString("background-color: white;"
-                                         "border-radius: %1px;"
-                                         "border: %2px solid rgb(0, 0, 0);")
-                                                 .arg(RADIUS).arg(RADIUS / 10);
-    const QString pressed_style = QString("background-color: grey;"
-                                          "border-radius: %1px;"
-                                          "border: %2px solid rgb(0, 0, 0);")
-                                                  .arg(RADIUS).arg(RADIUS / 10);
+    const int RADIUS = 50;
 
     void initUI();
-    void initConnect();
 
 public:
     StationButton() = default;
     ~StationButton() = default;
-    explicit StationButton(Station *station, QWidget *parent = nullptr);
+    explicit StationButton(Station *station, SelectionWidget *selection_widget);
+
+    int getId() const;
+    QString getName() const;
+    QPoint getPosition() const;
+
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 };
 
 
