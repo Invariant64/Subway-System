@@ -1,11 +1,15 @@
-#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <map>
 #include <set>
 
-#define LINE_FILE "../line.txt"
+#define INPUT_LINE_FILE "line.txt"
+#define INPUT_POSITION_FILE "position.txt"
+
+#define OUTPUT_STATION_FILE "../net-data/data.station"
+#define OUTPUT_EDGE_FILE "../net-data/data.edge"
+#define OUTPUT_LINE_FILE "../net-data/data.line"
 
 using std::string;
 using std::cout;
@@ -15,7 +19,7 @@ using std::pair;
 using std::set;
 
 int edges_num = 0;
-int stations_num = 0;
+int stations_num = 0; 
 
 int main() {
 
@@ -23,15 +27,17 @@ int main() {
     std::ofstream of, of1;
 
     // read lines
-    fp.open(LINE_FILE, std::ios::in);
+    fp.open(INPUT_LINE_FILE, std::ios::in);
     if (!fp.is_open()) {
-        std::cout << "Error: " << LINE_FILE << " not found" << std::endl;
+        std::cout << "Error: " << INPUT_LINE_FILE << " not found" << std::endl;
         return 1;
     }
+
     string lines[50];
+    string color[50];
     int num_lines = 0;
     while (!fp.eof()) {
-        getline(fp, lines[num_lines]);
+        fp >> lines[num_lines] >> color[num_lines];
         num_lines++;
     }
     fp.close();
@@ -39,19 +45,12 @@ int main() {
     set< pair<int, int> > edges;
 
     // read edges and write edges and write lines
-    of.open("../edges.txt", std::ios::out);
-    if (!of.is_open()) {
-        std::cout << "Error: edges.txt not found" << std::endl;
-        return 1;
-    }
-    of1.open("../lines.txt", std::ios::out);
-    if (!of1.is_open()) {
-        std::cout << "Error: lines.txt not found" << std::endl;
-        return 1;
-    }
+    of.open(OUTPUT_EDGE_FILE, std::ios::out);
+    of1.open(OUTPUT_LINE_FILE, std::ios::out);
+
     map<string, int> station_to_id;
     for (int i = 0; i < num_lines; i++) {
-        fp.open("../" + lines[i] + ".txt", std::ios::in);
+        fp.open(lines[i] + ".txt", std::ios::in);
         if (!fp.is_open()) {
             std::cout << "Error: " << lines[i] << ".txt not found" << std::endl;
             return 1;
@@ -80,7 +79,7 @@ int main() {
             }
         }
         fp.close();
-        of1 << i << ' ' << lines[i] << ' ' << stations_in_line.size() << "\n";
+        of1 << i << ' ' << lines[i] << ' ' << stations_in_line.size() << ' ' << color[i] << "\n";
         for (auto it = stations_in_line.begin(); it != stations_in_line.end(); it++) {
             of1 << *it << ' ';
         }
@@ -90,9 +89,9 @@ int main() {
     of1.close();
 
     map< string, pair<int, int> > station_positions;
-    fp.open("../xy.txt", std::ios::in);
+    fp.open(INPUT_POSITION_FILE, std::ios::in);
     if (!fp.is_open()) {
-        std::cout << "Error: xy.txt not found" << std::endl;
+        std::cout << "Error: " << INPUT_POSITION_FILE << "not found" << std::endl;
         return 1;
     }
     while (!fp.eof()) {
@@ -103,8 +102,8 @@ int main() {
     }
 
     // write stations
-    of.open("../data.station", std::ios::out);
-
+    of.open(OUTPUT_STATION_FILE, std::ios::out);
+    
     map<int, string> id_to_station;
     for (auto it = station_to_id.begin(); it != station_to_id.end(); it++) {
         id_to_station.insert(std::make_pair(it->second, it->first));
@@ -120,5 +119,5 @@ int main() {
         of << "\n";
     }
     of.close();
-
+    
 }

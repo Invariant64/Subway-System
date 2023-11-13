@@ -1,12 +1,12 @@
-1号线
-2号线
-4号线
-5号线
-6号线
-7号线
-8号线
-9号线
-10号线
-11号线
-13号线
-14号线
+1号线 red
+2号线 green
+4号线 blue
+5号线 yellow
+6号线 purple
+7号线 orange
+8号线 brown
+9号线 pink
+10号线 gray
+11号线 cyan
+13号线 lightblue
+14号线 black
