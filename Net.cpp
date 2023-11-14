@@ -13,7 +13,7 @@ Net::Net() {
     station_num_ = 0;
     edge_num_ = 0;
     stations_ = new QMap<int, Station>();
-    edges_ = new QMap<int, Edge>();
+    edges_ = new QMap<int, Edge*>();
     lines_ = new QMap<int, Line*>();
     station_name_to_id_ = new QMap<QString, int>();
 
@@ -24,7 +24,7 @@ Net::Net(const QString& stations_file_name, const QString& edges_file_name, cons
     station_num_ = 0;
     edge_num_ = 0;
     stations_ = new QMap<int, Station>();
-    edges_ = new QMap<int, Edge>();
+    edges_ = new QMap<int, Edge*>();
     lines_ = new QMap<int, Line*>();
     station_name_to_id_ = new QMap<QString, int>();
 
@@ -105,7 +105,7 @@ bool Net::loadEdgesFromFile(const QString& file_name) {
         int edge_next_station_id = fields[3].toInt();
         int edge_weight_time = fields[4].toInt();
         int edge_weight_distance = fields[5].toInt();
-        Edge edge(edge_id, edge_line_id, edge_station_id,
+        Edge *edge = new Edge(edge_id, edge_line_id, edge_station_id,
                   edge_next_station_id, edge_weight_time,
                   edge_weight_distance);
         addEdge(edge);
@@ -149,16 +149,16 @@ void Net::addStation(const Station& station) {
     station_name_to_id_->insert(station.getName(), station.getId());
 }
 
-void Net::addEdge(const Edge& edge) {
+void Net::addEdge(Edge* edge) {
     edge_num_++;
-    edges_->insert(edge.getId(), edge);
+    edges_->insert(edge->getId(), edge);
 }
 
 QMap<int, Station> *Net::getStations() const {
     return stations_;
 }
 
-QMap<int, Edge> *Net::getEdges() const {
+QMap<int, Edge*> *Net::getEdges() const {
     return edges_;
 }
 
@@ -170,7 +170,7 @@ Station Net::getStationById(int id) const {
     return stations_->value(id);
 }
 
-Edge Net::getEdgeById(int id) const {
+Edge* Net::getEdgeById(int id) const {
     return edges_->value(id);
 }
 
