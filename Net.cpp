@@ -16,8 +16,6 @@ Net::Net() {
     edges_ = new QMap<int, Edge*>();
     lines_ = new QMap<int, Line*>();
     station_name_to_id_ = new QMap<QString, int>();
-
-    edges_matrix_.station_num = 0;
 }
 
 Net::Net(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name) {
@@ -28,8 +26,6 @@ Net::Net(const QString& stations_file_name, const QString& edges_file_name, cons
     lines_ = new QMap<int, Line*>();
     station_name_to_id_ = new QMap<QString, int>();
 
-    edges_matrix_.station_num = 0;
-
     loadNetFromFile(stations_file_name, edges_file_name, lines_file_name);
 }
 
@@ -38,11 +34,6 @@ Net::~Net() {
     delete edges_;
     delete lines_;
     delete station_name_to_id_;
-
-    for (int i = 0; i < edges_matrix_.station_num; i++) {
-        delete[] edges_matrix_.matrix[i];
-    }
-    delete[] edges_matrix_.matrix;
 }
 
 // load stations and edges from file
@@ -241,27 +232,19 @@ int Net::getShortestPath(const QString& start_station_name, const QString& end_s
                            station_name_to_id_->value(end_station_name), path, weight_mode);
 }
 
-// delete the old edges matrix and create a new one
-void Net::flushEdgesMatrix() {
-    if (edges_matrix_.station_num != 0) {
-        for (int i = 0; i < edges_matrix_.station_num; i++) {
-            delete[] edges_matrix_.matrix[i];
-        }
-        delete[] edges_matrix_.matrix;
-    }
-
-    edges_matrix_.station_num = station_num_;
-    edges_matrix_.matrix = new int*[station_num_];
+void Net::buildAdjList() {
+    adj_list_ = new ArcNode[station_num_];
     for (int i = 0; i < station_num_; i++) {
-        edges_matrix_.matrix[i] = new int[station_num_];
-        for (int j = 0; j < station_num_; j++) {
-            edges_matrix_.matrix[i][j] = -1;
-        }
+        adj_list_[i].adj_vex = i;
+        adj_list_[i].edge = nullptr;
+        adj_list_[i].next = nullptr;
     }
-
-    edges_matrix_.edge_num = edge_num_;
-    for (const auto& edge : *edges_) {
-        edges_matrix_.matrix[edge.getStationId()][edge.getNextStationId()] = edge.getId();
+    for (auto edge : *edges_) {
+        ArcNode *arc_node = new ArcNode();
+        arc_node->adj_vex = edge->getStationId();
+        arc_node->edge = edge;
+        arc_node->next = adj_list_[edge->getNextStationId()].next;
+        adj_list_[edge->getNextStationId()].next = arc_node;
     }
 }
 
@@ -278,8 +261,15 @@ int Net::getStationIdByName(const QString& station_name) const {
     return station_name_to_id_->value(station_name);
 }
 
-Edge Net::getEdgeByStationId(int station_id, int next_station_id) const {
-    return edges_->value(edges_matrix_.matrix[station_id][next_station_id]);
+Edge* Net::getEdgeByStationId(int station_id, int next_station_id) const {
+    ArcNode *arc_node = adj_list_[station_id].next;
+    while (arc_node != nullptr) {
+        if (arc_node->adj_vex == next_station_id) {
+            return arc_node->edge;
+        }
+        arc_node = arc_node->next;
+    }
+    return nullptr;
 }
 
 Line* Net::getLineById(int line_id) const {

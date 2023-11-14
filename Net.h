@@ -22,14 +22,16 @@ private:
     QMap<int, Line*> *lines_;
 
     QMap<QString, int> *station_name_to_id_;
+    
+    struct ArcNode {
+        int adj_vex;
+        Edge *edge;
+        ArcNode *next;
+    };
 
-    struct EdgeMatrix {
-        int** matrix;
-        int station_num;
-        int edge_num;
-    } edges_matrix_;
+    ArcNode *adj_list_;
 
-    int getEdgeWeight(int start_station_id, int end_station_id, int weight_mode);
+    int getEdgeWeight(ArcNode *pre_node, ArcNode *arc_node, int weight_mode);
 
 public:
     Net();
@@ -54,7 +56,7 @@ public:
     int getShortestPath(int start_station_id, int end_station_id, QList<int>& path, int weight_mode = 0);
     int getShortestPath(const QString& start_station_name, const QString& end_station_name, QList<int>& path, int weight_mode = 0);
 
-    void flushEdgesMatrix();
+    void buildAdjList();
 
     int getStationIdByName(const QString& station_name) const;
 
