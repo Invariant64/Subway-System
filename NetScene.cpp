@@ -40,14 +40,14 @@ void NetScene::initStationButtons() {
 }
 
 void NetScene::initEdges() {
-    QMap<int, Edge> *edges = net_->getEdges();
+    QMap<int, Edge*> *edges = net_->getEdges();
     for (auto edge : *edges) {
-        QPoint start = net_->getStationById(edge.getStationId()).getPosition();
-        QPoint end = net_->getStationById(edge.getNextStationId()).getPosition();
+        QPoint start = net_->getStationById(edge->getStationId()).getPosition();
+        QPoint end = net_->getStationById(edge->getNextStationId()).getPosition();
         QGraphicsLineItem *line_item = new QGraphicsLineItem(start.x(), start.y(), end.x(), end.y());
         QPen *pen = new QPen();
         pen->setWidth(50);
-        pen->setColor(net_->getLineById(edge.getLineId())->getColor());
+        pen->setColor(net_->getLineById(edge->getLineId())->getColor());
         line_item->setPen(*pen);
         addItem(line_item);
     }
@@ -64,4 +64,15 @@ bool NetScene::init() {
     initEdges();
     initStationButtons();
     return true;
+}
+
+void NetScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    // 显示坐标
+//    selection_widget_->label->setText(QString("%1 %2").arg(event->scenePos().x()).arg(event->scenePos().y()));
+//    selection_widget_->move(event->scenePos().x(), event->scenePos().y() + 30);
+//    selection_widget_->show();
+//    // 将坐标复制到剪贴板
+//    QClipboard *clipboard = QApplication::clipboard();
+//    clipboard->setText(QString("%1 %2").arg(event->scenePos().x()).arg(event->scenePos().y()));
+
 }

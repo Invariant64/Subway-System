@@ -33,6 +33,8 @@ public:
     void setNet(Net *net);
 
     bool init();
+
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
 };
 
 
