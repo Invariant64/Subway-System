@@ -94,11 +94,19 @@ void MainWindow::initComboBoxLine() {
         combo_box_start_line_->addItem(line->getName());
         combo_box_end_line_->addItem(line->getName());
     }
+    combo_box_start_line_->addItem("所有线路");
+    combo_box_end_line_->addItem("所有线路");
     net_scene_->init();
 }
 
 void MainWindow::onComboBoxStartLineIndexChanged(int index) {
     combo_box_start_->clear();
+    if (index == net_->getLines()->size()) {
+        for (const auto& station : *net_->getStations()) {
+            combo_box_start_->addItem(station.getName());
+        }
+        return;
+    }
     auto stationsId = net_->getLines()->value(index)->getStationsId();
     for (int & it : *stationsId) {
         combo_box_start_->addItem(net_->getStationById(it).getName());
@@ -107,6 +115,12 @@ void MainWindow::onComboBoxStartLineIndexChanged(int index) {
 
 void MainWindow::onComboBoxEndLineIndexChanged(int index) {
     combo_box_end_->clear();
+    if (index == net_->getLines()->size()) {
+        for (const auto& station : *net_->getStations()) {
+            combo_box_end_->addItem(station.getName());
+        }
+        return;
+    }
     auto stationsId = net_->getLines()->value(index)->getStationsId();
     for (int & it : *stationsId) {
         combo_box_end_->addItem(net_->getStationById(it).getName());
