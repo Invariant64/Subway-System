@@ -17,7 +17,8 @@ MainWindow::~MainWindow() {
     delete combo_box_start_;
     delete combo_box_end_line_;
     delete combo_box_end_;
-    delete button_search_;
+    delete button_search_1_;
+    delete button_search_2_;
     delete net_scene_;
     delete view_;
 }
@@ -33,7 +34,8 @@ void MainWindow::initUI() {
     combo_box_end_line_ = new QComboBox(this);
     combo_box_end_ = new QComboBox(this);
 
-    button_search_ = new QPushButton("查询", this);
+    button_search_1_ = new QPushButton("查询最短路", this);
+    button_search_2_ = new QPushButton("查询最少换乘", this);
 
     net_scene_ = new NetScene();
     net_scene_->setSceneRect(0, 0, 15000, 10000);
@@ -50,7 +52,8 @@ void MainWindow::initUI() {
     h_layout_start->addWidget(combo_box_start_);
     h_layout_end->addWidget(combo_box_end_line_);
     h_layout_end->addWidget(combo_box_end_);
-    h_layout_button->addWidget(button_search_);
+    h_layout_button->addWidget(button_search_1_);
+    h_layout_button->addWidget(button_search_2_);
     h_layout_view->addWidget(view_);
 
     auto main_layout = new QVBoxLayout();
@@ -66,7 +69,8 @@ void MainWindow::initUI() {
 void MainWindow::initConnect() {
     connect(combo_box_start_line_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxStartLineIndexChanged(int)));
     connect(combo_box_end_line_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxEndLineIndexChanged(int)));
-    connect(button_search_, SIGNAL(clicked()), this, SLOT(onButtonSearchClicked()));
+    connect(button_search_1_, SIGNAL(clicked()), this, SLOT(onButtonSearch1Clicked()));
+    connect(button_search_2_, SIGNAL(clicked()), this, SLOT(onButtonSearch2Clicked()));
 
     connect(net_scene_->selection_widget_->setStartButton, &QPushButton::clicked, this, [=](){
         net_scene_->selection_widget_->hide();
@@ -109,51 +113,22 @@ void MainWindow::onComboBoxEndLineIndexChanged(int index) {
     }
 }
 
-void MainWindow::onButtonSearchClicked() {
+void MainWindow::onButtonSearch1Clicked() {
     view_->scale(0.5, 0.5);
-    //repaintScene();
 
+    QString result = net_->getShortestPathString(combo_box_start_->currentText(), combo_box_end_->currentText(), 1);
 
-    QString start_station_name = combo_box_start_->currentText();
-    QString end_station_name = combo_box_end_->currentText();
-    QList<int> path;
-    int sum = net_->getShortestPath(start_station_name, end_station_name, path, 1);
-    if (path.size() <= 1) {
-        return;
-    }
-
-    QString result = "最短距离为 " + QString::number(sum) + " 米\n";
-    result += "最短路径为：\n";
-
-    int last_line_id = -1;
-    int line_id = net_->getEdgeByStationId(path[0], path[1]).getLineId();
-
-    for (int i = 0; i < path.size(); i++) {
-        result += net_->getStationById(path[i]).getName().toStdString() + " ";
-        if (i == 0) {
-            result += "(" + net_->getLineById(line_id)->getName().toStdString() + ") -> ";
-            last_line_id = line_id;
-        }
-        else if (i != path.size() - 1) {
-            line_id = net_->getEdgeByStationId(path[i], path[i + 1]).getLineId();
-            if (last_line_id != line_id && last_line_id != -1) {
-                result += "\n(从 " + net_->getLineById(last_line_id)->getName().toStdString()
-                          + " 转乘至 " + net_->getLineById(line_id)->getName().toStdString() + ") ";
-                last_line_id = line_id;
-            }
-            result += "-> ";
-        }
-    }
     QMessageBox::information(this, "最短路径", result);
 }
 
-//void MainWindow::repaintScene() {
-//    for (auto item : net_scene_->items()) {
-//        delete item;
-//    }
-//    net_scene_->clear();
-//    net_scene_->init();
-//}
+void MainWindow::onButtonSearch2Clicked() {
+    view_->scale(2, 2);
+
+    QString result = net_->getShortestPathString(combo_box_start_->currentText(), combo_box_end_->currentText(), 2);
+
+    QMessageBox::information(this, "最少换乘", result);
+}
+
 
 
 

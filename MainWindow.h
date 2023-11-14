@@ -30,7 +30,8 @@ private:
     QComboBox *combo_box_start_;
     QComboBox *combo_box_end_line_;
     QComboBox *combo_box_end_;
-    QPushButton *button_search_;
+    QPushButton *button_search_1_;
+    QPushButton *button_search_2_;
 
     NetScene *net_scene_;
     QGraphicsView *view_;
@@ -43,7 +44,8 @@ private:
 private slots:
     void onComboBoxStartLineIndexChanged(int index); // 当起始线路下拉框的选项改变时
     void onComboBoxEndLineIndexChanged(int index); // 当终点线路下拉框的选项改变时
-    void onButtonSearchClicked();
+    void onButtonSearch1Clicked();
+    void onButtonSearch2Clicked();
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
