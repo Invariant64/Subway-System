@@ -22,7 +22,7 @@ private:
     QMap<int, Line*> *lines_;
 
     QMap<QString, int> *station_name_to_id_;
-    
+
     struct ArcNode {
         int adj_vex;
         Edge *edge;
@@ -53,18 +53,22 @@ public:
     Station getStationById(int id) const;
     Edge* getEdgeById(int id) const;
 
-    int getShortestPath(int start_station_id, int end_station_id, QList<int>& path, int weight_mode = 0);
-    int getShortestPath(const QString& start_station_name, const QString& end_station_name, QList<int>& path, int weight_mode = 0);
+    int getShortestPath(int start_station_id, int end_station_id, QList<Edge*>& path, int weight_mode = 0);
+    int getShortestPath(const QString& start_station_name, const QString& end_station_name, QList<Edge*>& path, int weight_mode = 0);
 
     void buildAdjList();
 
     int getStationIdByName(const QString& station_name) const;
 
-    Edge getEdgeByStationId(int station_id, int next_station_id) const;
+    Edge *getEdgeByStationId(int station_id, int next_station_id) const;
 
     Line* getLineById(int line_id) const;
 
     Line* getFirstLineByStationName(const QString& station_name) const;
+
+    QString getPathString(const QList<Edge*>& path) const;
+
+    QString getShortestPathString(const QString& start_station_name, const QString& end_station_name, int weight_mode = 0);
 
 };
 
