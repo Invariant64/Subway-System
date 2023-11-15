@@ -89,7 +89,7 @@ void NetScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 //    // 将坐标复制到剪贴板
 //    QClipboard *clipboard = QApplication::clipboard();
 //    clipboard->setText(QString("%1 %2").arg(event->scenePos().x()).arg(event->scenePos().y()));
-
+    QGraphicsScene::mousePressEvent(event);
 }
 
 void NetScene::highlightPath(QList<Edge *> &path) {
@@ -111,26 +111,26 @@ void NetScene::highlightPath(QList<Edge *> &path) {
         }
     }
 
-    QList<int> stations_id;
+    QList<Station*> stations;
     for (auto edge : path) {
-        stations_id.append(edge->getStationId());
+        stations.append(net_->getStationById(edge->getStationId()));
     }
-    stations_id.append(path.last()->getNextStationId());
+    stations.append(net_->getStationById(path.first()->getNextStationId()));
 
     for (auto station_button : *station_buttons_) {
         bool flag = false;
-        for (auto station_id : stations_id) {
-            if (station_id == station_button->getId()) {
+        for (auto station : stations) {
+            if (station == station_button->getStation()) {
                 flag = true;
                 break;
             }
         }
         if (!flag) {
-            QPen pen = station_button->pen();
-            QColor color = pen.color();
+            QBrush brush = station_button->brush();
+            QColor color = brush.color();
             color.setAlpha(20);
-            pen.setBrush(color);
-            station_button->setPen(pen);
+            brush.setColor(color);
+            station_button->setBrush(brush);
         }
     }
 }
@@ -145,10 +145,10 @@ void NetScene::clearHighlight() {
     }
 
     for (auto station_button : *station_buttons_) {
-        QPen pen = station_button->pen();
-        QColor color = pen.color();
+        QBrush brush = station_button->brush();
+        QColor color = brush.color();
         color.setAlpha(255);
-        pen.setBrush(color);
-        station_button->setPen(pen);
+        brush.setColor(color);
+        station_button->setBrush(brush);
     }
 }
