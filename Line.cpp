@@ -39,3 +39,15 @@ void Line::addStationId(int station_id) {
     stations_id_->append(station_id);
 }
 
+bool Line::existEdge(int start_station_id, int end_station_id) const {
+    for (int i = 0; i < stations_id_->size() - 1; i++) {
+        if (stations_id_->at(i) == start_station_id && stations_id_->at(i + 1) == end_station_id) {
+            return true;
+        }
+        if (stations_id_->at(i) == end_station_id && stations_id_->at(i + 1) == start_station_id) {
+            return true;
+        }
+    }
+    return false;
+}
+

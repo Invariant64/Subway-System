@@ -29,6 +29,8 @@ public:
     QList<int> *getStationsId() const;
 
     void addStationId(int station_id);
+
+    bool existEdge(int start_station_id, int end_station_id) const;
 };
 
 
