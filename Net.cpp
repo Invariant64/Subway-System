@@ -264,7 +264,13 @@ int Net::getEdgeWeight(ArcNode *pre_node, ArcNode *arc_node, int weight_mode) {
     }
     switch (weight_mode) {
         case 0:
-            return arc_node->edge->getWeightTime();
+            if (pre_node == nullptr) {
+                return arc_node->edge->getWeightDistance() / TRAIN_SPEED;
+            }
+            if (pre_node->edge->getLineId() != arc_node->edge->getLineId()) {
+                return arc_node->edge->getWeightDistance() / TRAIN_SPEED + TRANSFER_TIME;
+            }
+            return arc_node->edge->getWeightDistance() / TRAIN_SPEED;
         case 1:
             return arc_node->edge->getWeightDistance();
         case 2:

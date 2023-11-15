@@ -17,8 +17,9 @@ MainWindow::~MainWindow() {
     delete combo_box_start_;
     delete combo_box_end_line_;
     delete combo_box_end_;
-    delete button_search_1_;
-    delete button_search_2_;
+    delete button_search_time_;
+    delete button_search_distance_;
+    delete button_search_transfer_;
     delete net_scene_;
     delete view_;
 }
@@ -34,8 +35,9 @@ void MainWindow::initUI() {
     combo_box_end_line_ = new QComboBox(this);
     combo_box_end_ = new QComboBox(this);
 
-    button_search_1_ = new QPushButton("查询最短路", this);
-    button_search_2_ = new QPushButton("查询最少换乘", this);
+    button_search_time_ = new QPushButton("查询最短时间", this);
+    button_search_distance_ = new QPushButton("查询最短路", this);
+    button_search_transfer_ = new QPushButton("查询最少换乘", this);
 
     net_scene_ = new NetScene();
     net_scene_->setSceneRect(0, 0, 15000, 10000);
@@ -43,7 +45,7 @@ void MainWindow::initUI() {
     view_->setScene(net_scene_);
     view_->setRenderHint(QPainter::Antialiasing);
 
-    scale_button_group_ = new ScaleButtonGroup(QPointF(1, 1), QPointF(0.5, 0.5), QPointF(4, 4), QPointF(0.0625, 0.0625), view_, this);
+    scale_button_group_ = new ScaleButtonGroup(QPointF(2, 2), QPointF(0.5, 0.5), QPointF(4, 4), QPointF(0.0625, 0.0625), view_, this);
 
     auto h_layout_start = new QHBoxLayout();
     auto h_layout_end = new QHBoxLayout();
@@ -55,8 +57,9 @@ void MainWindow::initUI() {
     h_layout_start->addWidget(combo_box_start_);
     h_layout_end->addWidget(combo_box_end_line_);
     h_layout_end->addWidget(combo_box_end_);
-    h_layout_button->addWidget(button_search_1_);
-    h_layout_button->addWidget(button_search_2_);
+    h_layout_button->addWidget(button_search_time_);
+    h_layout_button->addWidget(button_search_distance_);
+    h_layout_button->addWidget(button_search_transfer_);
     h_layout_scale->addWidget(scale_button_group_);
     h_layout_view->addWidget(view_);
 
@@ -74,8 +77,10 @@ void MainWindow::initUI() {
 void MainWindow::initConnect() {
     connect(combo_box_start_line_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxStartLineIndexChanged(int)));
     connect(combo_box_end_line_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxEndLineIndexChanged(int)));
-    connect(button_search_1_, SIGNAL(clicked()), this, SLOT(onButtonSearch1Clicked()));
-    connect(button_search_2_, SIGNAL(clicked()), this, SLOT(onButtonSearch2Clicked()));
+
+    connect(button_search_time_, SIGNAL(clicked()), this, SLOT(onButtonSearchTimeClicked()));
+    connect(button_search_distance_, SIGNAL(clicked()), this, SLOT(onButtonSearchDistanceClicked()));
+    connect(button_search_transfer_, SIGNAL(clicked()), this, SLOT(onButtonSearchTransferClicked()));
 
     connect(net_scene_->selection_widget_->setStartButton, &QPushButton::clicked, this, [=](){
         net_scene_->selection_widget_->hide();
@@ -132,28 +137,43 @@ void MainWindow::onComboBoxEndLineIndexChanged(int index) {
     }
 }
 
-void MainWindow::onButtonSearch1Clicked() {
+void MainWindow::onButtonSearchTimeClicked() {
     if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
         QMessageBox::information(this, "错误", "起点和终点相同");
         return;
     }
 
     QList<Edge*> path;
-    net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 1);
+    int time = net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 0);
     net_scene_->highlightPath(path);
-    QMessageBox::information(this, "最短路径", net_->getPathString(path));
+    QString result = "最短时间为" + QString::number((time + 60) / 60) + "分钟\n" + net_->getPathString(path);
+    QMessageBox::information(this, "最短时间", result);
 }
 
-void MainWindow::onButtonSearch2Clicked() {
+void MainWindow::onButtonSearchDistanceClicked() {
     if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
         QMessageBox::information(this, "错误", "起点和终点相同");
         return;
     }
 
     QList<Edge*> path;
-    net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 2);
+    int distance = net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 1);
     net_scene_->highlightPath(path);
-    QMessageBox::information(this, "最少换乘", net_->getPathString(path));
+    QString result = "最短路程为" + QString::number(1.0 * distance / 1000) + "千米\n" + net_->getPathString(path);
+    QMessageBox::information(this, "最短路程", result);
+}
+
+void MainWindow::onButtonSearchTransferClicked() {
+    if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
+        QMessageBox::information(this, "错误", "起点和终点相同");
+        return;
+    }
+
+    QList<Edge*> path;
+    int transfer = net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 2);
+    net_scene_->highlightPath(path);
+    QString result = "最少换乘" + QString::number(transfer) + "次\n" + net_->getPathString(path);
+    QMessageBox::information(this, "最少换乘", result);
 }
 
 

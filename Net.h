@@ -31,7 +31,7 @@ private:
 
     ArcNode *adj_list_;
 
-    int getEdgeWeight(ArcNode *pre_node, ArcNode *arc_node, int weight_mode);
+    static int getEdgeWeight(ArcNode *pre_node, ArcNode *arc_node, int weight_mode);
 
 public:
     Net();
@@ -69,6 +69,9 @@ public:
     QString getPathString(const QList<Edge*>& path) const;
 
     QString getShortestPathString(const QString& start_station_name, const QString& end_station_name, int weight_mode = 0);
+
+    static const int TRAIN_SPEED = 35 * 1000 / 60; // 35 km/h
+    static const int TRANSFER_TIME = 3 * 60; // 3 minutes
 
 };
 
