@@ -138,9 +138,10 @@ void MainWindow::onButtonSearch1Clicked() {
         return;
     }
 
-    QString result = net_->getShortestPathString(combo_box_start_->currentText(), combo_box_end_->currentText(), 1);
-
-    QMessageBox::information(this, "最短路径", result);
+    QList<Edge*> path;
+    net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 1);
+    net_scene_->highlightPath(path);
+    QMessageBox::information(this, "最短路径", net_->getPathString(path));
 }
 
 void MainWindow::onButtonSearch2Clicked() {
@@ -149,9 +150,10 @@ void MainWindow::onButtonSearch2Clicked() {
         return;
     }
 
-    QString result = net_->getShortestPathString(combo_box_start_->currentText(), combo_box_end_->currentText(), 2);
-
-    QMessageBox::information(this, "最少换乘", result);
+    QList<Edge*> path;
+    net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 2);
+    net_scene_->highlightPath(path);
+    QMessageBox::information(this, "最少换乘", net_->getPathString(path));
 }
 
 

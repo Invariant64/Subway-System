@@ -2,16 +2,27 @@
 // Created by Noah on 2023/11/8.
 //
 
+#include <QHBoxLayout>
 #include "NetScene.h"
-#include "StationButton.h"
 
 NetScene::NetScene() {
     net_ = nullptr;
+    station_buttons_ = new QList<StationButton *>;
+    edges_items_ = new QList<EdgeItem *>;
     initUI();
 }
 
 NetScene::~NetScene() {
     delete selection_widget_;
+
+    for (auto station_button : *station_buttons_) {
+        delete station_button;
+    }
+    delete station_buttons_;
+
+    for (auto edge_item : *edges_items_) {
+        delete edge_item;
+    }
 }
 
 void NetScene::initUI() {
@@ -22,19 +33,21 @@ void NetScene::initUI() {
     proxy_selection_widget_->setZValue(1);
     proxy_selection_widget_->setFlag(QGraphicsItem::ItemIgnoresTransformations);
     proxy_selection_widget_->hide();
+
     //设置背景图片
-    QImageReader::setAllocationLimit(0);
-    QPixmap pixmap = QPixmap("../resources/newmap.jpeg");
-    if (pixmap.isNull()) {
-        qDebug() << "Failed to load background image!";
-    }
-    setBackgroundBrush(QBrush(pixmap));
+//    QImageReader::setAllocationLimit(0);
+//    QPixmap pixmap = QPixmap("../resources/newmap.jpeg");
+//    if (pixmap.isNull()) {
+//        qDebug() << "Failed to load background image!";
+//    }
+//    setBackgroundBrush(QBrush(pixmap));
 }
 
 void NetScene::initStationButtons() {
     QMap<int, Station> *stations = net_->getStations();
     for (auto station : *stations) {
         StationButton *station_button = new StationButton(&station, selection_widget_);
+        station_buttons_->append(station_button);
         addItem(station_button);
     }
 }
@@ -44,12 +57,14 @@ void NetScene::initEdges() {
     for (auto edge : *edges) {
         QPoint start = net_->getStationById(edge->getStationId()).getPosition();
         QPoint end = net_->getStationById(edge->getNextStationId()).getPosition();
-        QGraphicsLineItem *line_item = new QGraphicsLineItem(start.x(), start.y(), end.x(), end.y());
-        QPen *pen = new QPen();
-        pen->setWidth(50);
-        pen->setColor(net_->getLineById(edge->getLineId())->getColor());
-        line_item->setPen(*pen);
-        addItem(line_item);
+        auto *edge_item = new EdgeItem(edge);
+        QPen pen = edge_item->pen();
+        pen.setWidth(50);
+        pen.setColor(net_->getLineById(edge->getLineId())->getColor());
+        edge_item->setPen(pen);
+        edge_item->setLine(start.x(), start.y(), end.x(), end.y());
+        edges_items_->append(edge_item);
+        addItem(edge_item);
     }
 }
 

@@ -13,12 +13,18 @@
 #include <QImageReader>
 #include "SelectionWidget.h"
 #include "Net.h"
+#include "StationButton.h"
+#include "EdgeItem.h"
 
 class NetScene : public QGraphicsScene {
     Q_OBJECT
 
 private:
     Net *net_;
+
+    QList<StationButton *> *station_buttons_;
+    QList<EdgeItem *> *edges_items_;
+
     void initStationButtons();
     void initEdges();
     void initUI();
