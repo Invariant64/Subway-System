@@ -41,6 +41,10 @@ public:
     bool init();
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
+
+    void highlightPath(QList<Edge*> &path);
+
+    void clearHighlight();
 };
 
 

@@ -91,3 +91,64 @@ void NetScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 //    clipboard->setText(QString("%1 %2").arg(event->scenePos().x()).arg(event->scenePos().y()));
 
 }
+
+void NetScene::highlightPath(QList<Edge *> &path) {
+    clearHighlight();
+    for (auto edge_item : *edges_items_) {
+        bool flag = false;
+        for (auto edge : path) {
+            if (edge == edge_item->getEdge()) {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
+            QPen pen = edge_item->pen();
+            QColor color = pen.color();
+            color.setAlpha(20);
+            pen.setBrush(color);
+            edge_item->setPen(pen);
+        }
+    }
+
+    QList<int> stations_id;
+    for (auto edge : path) {
+        stations_id.append(edge->getStationId());
+    }
+    stations_id.append(path.last()->getNextStationId());
+
+    for (auto station_button : *station_buttons_) {
+        bool flag = false;
+        for (auto station_id : stations_id) {
+            if (station_id == station_button->getId()) {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
+            QPen pen = station_button->pen();
+            QColor color = pen.color();
+            color.setAlpha(20);
+            pen.setBrush(color);
+            station_button->setPen(pen);
+        }
+    }
+}
+
+void NetScene::clearHighlight() {
+    for (auto edge_item : *edges_items_) {
+        QPen pen = edge_item->pen();
+        QColor color = pen.color();
+        color.setAlpha(255);
+        pen.setBrush(color);
+        edge_item->setPen(pen);
+    }
+
+    for (auto station_button : *station_buttons_) {
+        QPen pen = station_button->pen();
+        QColor color = pen.color();
+        color.setAlpha(255);
+        pen.setBrush(color);
+        station_button->setPen(pen);
+    }
+}
