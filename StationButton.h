@@ -18,8 +18,9 @@
 
 class StationButton : public QGraphicsEllipseItem {
 private:
-    int id_;
-    QString name_;
+
+    Station *station_;
+
     QPoint position_;
 
     SelectionWidget *selection_widget_;
@@ -36,6 +37,7 @@ public:
     int getId() const;
     QString getName() const;
     QPoint getPosition() const;
+    Station *getStation() const;
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);

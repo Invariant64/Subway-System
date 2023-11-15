@@ -5,8 +5,7 @@
 #include "StationButton.h"
 
 StationButton::StationButton(Station *station, SelectionWidget *selection_widget) :
-        id_(station->getId()), name_(station->getName()), position_(station->getPosition()),
-        QGraphicsEllipseItem(), selection_widget_(selection_widget) {
+        station_(station), position_(station->getPosition()), QGraphicsEllipseItem(), selection_widget_(selection_widget) {
     initUI();
 }
 
@@ -20,22 +19,27 @@ void StationButton::initUI() {
     this->setBrush(QBrush(QColor(0, 160, 230)));
 
     // 显示名字
-    QGraphicsTextItem *text_item = new QGraphicsTextItem(name_);
+    QGraphicsTextItem *text_item = new QGraphicsTextItem(station_->getName());
     text_item->setZValue(1);
-    text_item->setPos(position_.x() - RADIUS, position_.y() - RADIUS - 20);
+    text_item->setPos(position_.x() - 3 * RADIUS, position_.y() - 3 * RADIUS);
+    text_item->setScale(5);
     text_item->setParentItem(this);
 }
 
 int StationButton::getId() const {
-    return id_;
+    return station_->getId();
 }
 
 QString StationButton::getName() const {
-    return name_;
+    return station_->getName();
 }
 
 QPoint StationButton::getPosition() const {
     return position_ - QPoint(RADIUS, RADIUS);
+}
+
+Station *StationButton::getStation() const {
+    return station_;
 }
 
 void StationButton::mousePressEvent(QGraphicsSceneMouseEvent *event) {
@@ -48,7 +52,7 @@ void StationButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     position_ = event->scenePos().toPoint();
     selection_widget_->move(position_.x(), position_.y() + 30);
     selection_widget_->show();
-    selection_widget_->setCurrentStationName(name_);
+    selection_widget_->setCurrentStationName(station_->getName());
     selection_widget_->label->setText(QString("%1 %2").arg(position_.x()).arg(position_.y()));
 }
 
