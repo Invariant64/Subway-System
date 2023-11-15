@@ -21,6 +21,7 @@
 #include "StationButton.h"
 #include "SelectionWidget.h"
 #include "NetScene.h"
+#include "ScaleButtonGroup.h"
 
 class MainWindow : public QWidget {
     Q_OBJECT
@@ -35,6 +36,8 @@ private:
 
     NetScene *net_scene_;
     QGraphicsView *view_;
+
+    ScaleButtonGroup *scale_button_group_;
 
     void initUI();
     void initConnect();

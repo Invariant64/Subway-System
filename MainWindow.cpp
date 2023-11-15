@@ -43,9 +43,12 @@ void MainWindow::initUI() {
     view_->setScene(net_scene_);
     view_->setRenderHint(QPainter::Antialiasing);
 
+    scale_button_group_ = new ScaleButtonGroup(QPointF(1, 1), QPointF(0.5, 0.5), QPointF(4, 4), QPointF(0.0625, 0.0625), view_, this);
+
     auto h_layout_start = new QHBoxLayout();
     auto h_layout_end = new QHBoxLayout();
     auto h_layout_button = new QHBoxLayout();
+    auto h_layout_scale = new QHBoxLayout();
     auto h_layout_view = new QHBoxLayout();
 
     h_layout_start->addWidget(combo_box_start_line_);
@@ -54,6 +57,7 @@ void MainWindow::initUI() {
     h_layout_end->addWidget(combo_box_end_);
     h_layout_button->addWidget(button_search_1_);
     h_layout_button->addWidget(button_search_2_);
+    h_layout_scale->addWidget(scale_button_group_);
     h_layout_view->addWidget(view_);
 
     auto main_layout = new QVBoxLayout();
@@ -61,6 +65,7 @@ void MainWindow::initUI() {
     main_layout->addLayout(h_layout_start);
     main_layout->addLayout(h_layout_end);
     main_layout->addLayout(h_layout_button);
+    main_layout->addLayout(h_layout_scale);
     main_layout->addLayout(h_layout_view);
 
     setLayout(main_layout);
@@ -128,7 +133,10 @@ void MainWindow::onComboBoxEndLineIndexChanged(int index) {
 }
 
 void MainWindow::onButtonSearch1Clicked() {
-    view_->scale(0.5, 0.5);
+    if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
+        QMessageBox::information(this, "错误", "起点和终点相同");
+        return;
+    }
 
     QString result = net_->getShortestPathString(combo_box_start_->currentText(), combo_box_end_->currentText(), 1);
 
@@ -136,7 +144,10 @@ void MainWindow::onButtonSearch1Clicked() {
 }
 
 void MainWindow::onButtonSearch2Clicked() {
-    view_->scale(2, 2);
+    if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
+        QMessageBox::information(this, "错误", "起点和终点相同");
+        return;
+    }
 
     QString result = net_->getShortestPathString(combo_box_start_->currentText(), combo_box_end_->currentText(), 2);
 
