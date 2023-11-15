@@ -12,19 +12,19 @@
 Net::Net() {
     station_num_ = 0;
     edge_num_ = 0;
-    stations_ = new QMap<int, Station>();
-    edges_ = new QMap<int, Edge*>();
-    lines_ = new QMap<int, Line*>();
-    station_name_to_id_ = new QMap<QString, int>();
+    stations_ = new QMap<int, Station*>;
+    edges_ = new QMap<int, Edge*>;
+    lines_ = new QMap<int, Line*>;
+    station_name_to_id_ = new QMap<QString, int>;
 }
 
 Net::Net(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name) {
     station_num_ = 0;
     edge_num_ = 0;
-    stations_ = new QMap<int, Station>();
-    edges_ = new QMap<int, Edge*>();
-    lines_ = new QMap<int, Line*>();
-    station_name_to_id_ = new QMap<QString, int>();
+    stations_ = new QMap<int, Station*>;
+    edges_ = new QMap<int, Edge*>;
+    lines_ = new QMap<int, Line*>;
+    station_name_to_id_ = new QMap<QString, int>;
 
     loadNetFromFile(stations_file_name, edges_file_name, lines_file_name);
 }
@@ -71,7 +71,7 @@ bool Net::loadStationsFromFile(const QString& file_name) {
         int station_position_x = fields.size() == 4 ? fields[2].toInt() : random() % 4500;
         int station_position_y = fields.size() == 4 ? fields[3].toInt() : random() % 3000;
         QPoint station_position(station_position_x, station_position_y);
-        Station station(station_id, station_name, station_position);
+        Station *station = new Station(station_id, station_name, station_position);
         addStation(station);
     }
     return true;
@@ -135,10 +135,10 @@ bool Net::loadLinesFromFile(const QString& file_name) {
     return true;
 }
 
-void Net::addStation(const Station& station) {
+void Net::addStation(Station *station) {
     station_num_++;
-    stations_->insert(station.getId(), station);
-    station_name_to_id_->insert(station.getName(), station.getId());
+    stations_->insert(station->getId(), station);
+    station_name_to_id_->insert(station->getName(), station->getId());
 }
 
 void Net::addEdge(Edge* edge) {
@@ -146,7 +146,7 @@ void Net::addEdge(Edge* edge) {
     edges_->insert(edge->getId(), edge);
 }
 
-QMap<int, Station> *Net::getStations() const {
+QMap<int, Station*> *Net::getStations() const {
     return stations_;
 }
 
@@ -158,7 +158,7 @@ QMap<int, Line*> *Net::getLines() const {
     return lines_;
 }
 
-Station Net::getStationById(int id) const {
+Station* Net::getStationById(int id) const {
     return stations_->value(id);
 }
 
@@ -313,11 +313,11 @@ QString Net::getPathString(const QList<Edge *> &path) const {
     QString result = "";
 
     result += "乘车路线为：\n";
-    result += "从 " + getStationById(path[0]->getStationId()).getName().toStdString() +
+    result += "从 " + getStationById(path[0]->getStationId())->getName().toStdString() +
               " 乘坐 " + getLineById(path[0]->getLineId())->getName().toStdString() +
-              " 出发\n" + getStationById(path[0]->getStationId()).getName().toStdString();
+              " 出发\n" + getStationById(path[0]->getStationId())->getName().toStdString();
     for (int i = 0; i < path.size(); i++) {
-        result += " -> " + getStationById(path[i]->getStationId()).getName().toStdString() + " ";
+        result += " -> " + getStationById(path[i]->getStationId())->getName().toStdString() + " ";
         if (i != 0) {
             int line_id = path[i]->getLineId();
             int last_line_id = path[i - 1]->getLineId();
@@ -327,7 +327,7 @@ QString Net::getPathString(const QList<Edge *> &path) const {
             }
         }
     }
-    result += " -> " + getStationById(path[path.size() - 1]->getNextStationId()).getName().toStdString() + " ";
+    result += " -> " + getStationById(path[path.size() - 1]->getNextStationId())->getName().toStdString() + " ";
 
     return result;
 }

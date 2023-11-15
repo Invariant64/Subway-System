@@ -44,9 +44,9 @@ void NetScene::initUI() {
 }
 
 void NetScene::initStationButtons() {
-    QMap<int, Station> *stations = net_->getStations();
+    QMap<int, Station*> *stations = net_->getStations();
     for (auto station : *stations) {
-        StationButton *station_button = new StationButton(&station, selection_widget_);
+        StationButton *station_button = new StationButton(station, selection_widget_);
         station_buttons_->append(station_button);
         addItem(station_button);
     }
@@ -55,8 +55,8 @@ void NetScene::initStationButtons() {
 void NetScene::initEdges() {
     QMap<int, Edge*> *edges = net_->getEdges();
     for (auto edge : *edges) {
-        QPoint start = net_->getStationById(edge->getStationId()).getPosition();
-        QPoint end = net_->getStationById(edge->getNextStationId()).getPosition();
+        QPoint start = net_->getStationById(edge->getStationId())->getPosition();
+        QPoint end = net_->getStationById(edge->getNextStationId())->getPosition();
         auto *edge_item = new EdgeItem(edge);
         QPen pen = edge_item->pen();
         pen.setWidth(50);

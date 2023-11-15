@@ -17,7 +17,7 @@ private:
     int station_num_;
     int edge_num_;
 
-    QMap<int, Station> *stations_;
+    QMap<int, Station*> *stations_;
     QMap<int, Edge*> *edges_;
     QMap<int, Line*> *lines_;
 
@@ -43,14 +43,14 @@ public:
     bool loadEdgesFromFile(const QString& file_name);
     bool loadLinesFromFile(const QString& file_name);
 
-    void addStation(const Station& station);
+    void addStation(Station *station);
     void addEdge(Edge *edge);
 
-    QMap<int, Station> *getStations() const;
+    QMap<int, Station*> *getStations() const;
     QMap<int, Edge*> *getEdges() const;
     QMap<int, Line*> *getLines() const;
 
-    Station getStationById(int id) const;
+    Station* getStationById(int id) const;
     Edge* getEdgeById(int id) const;
 
     int getShortestPath(int start_station_id, int end_station_id, QList<Edge*>& path, int weight_mode = 0);
@@ -60,7 +60,7 @@ public:
 
     int getStationIdByName(const QString& station_name) const;
 
-    Edge *getEdgeByStationId(int station_id, int next_station_id) const;
+    Edge* getEdgeByStationId(int station_id, int next_station_id) const;
 
     Line* getLineById(int line_id) const;
 

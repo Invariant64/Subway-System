@@ -108,13 +108,13 @@ void MainWindow::onComboBoxStartLineIndexChanged(int index) {
     combo_box_start_->clear();
     if (index == net_->getLines()->size()) {
         for (const auto& station : *net_->getStations()) {
-            combo_box_start_->addItem(station.getName());
+            combo_box_start_->addItem(station->getName());
         }
         return;
     }
     auto stationsId = net_->getLines()->value(index)->getStationsId();
     for (int & it : *stationsId) {
-        combo_box_start_->addItem(net_->getStationById(it).getName());
+        combo_box_start_->addItem(net_->getStationById(it)->getName());
     }
 }
 
@@ -122,13 +122,13 @@ void MainWindow::onComboBoxEndLineIndexChanged(int index) {
     combo_box_end_->clear();
     if (index == net_->getLines()->size()) {
         for (const auto& station : *net_->getStations()) {
-            combo_box_end_->addItem(station.getName());
+            combo_box_end_->addItem(station->getName());
         }
         return;
     }
     auto stationsId = net_->getLines()->value(index)->getStationsId();
     for (int & it : *stationsId) {
-        combo_box_end_->addItem(net_->getStationById(it).getName());
+        combo_box_end_->addItem(net_->getStationById(it)->getName());
     }
 }
 
