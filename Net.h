@@ -31,7 +31,7 @@ private:
 
     ArcNode *adj_list_;
 
-    static int getEdgeWeight(ArcNode *pre_node, ArcNode *arc_node, int weight_mode);
+    static double getEdgeWeight(ArcNode *pre_node, ArcNode *arc_node, int weight_mode);
 
 public:
     Net();
@@ -53,8 +53,8 @@ public:
     Station* getStationById(int id) const;
     Edge* getEdgeById(int id) const;
 
-    int getShortestPath(int start_station_id, int end_station_id, QList<Edge*>& path, int weight_mode = 0);
-    int getShortestPath(const QString& start_station_name, const QString& end_station_name, QList<Edge*>& path, int weight_mode = 0);
+    double getShortestPath(int start_station_id, int end_station_id, QList<Edge*>& path, int weight_mode = 0);
+    double getShortestPath(const QString& start_station_name, const QString& end_station_name, QList<Edge*>& path, int weight_mode = 0);
 
     void buildAdjList();
 
@@ -70,8 +70,8 @@ public:
 
     QString getShortestPathString(const QString& start_station_name, const QString& end_station_name, int weight_mode = 0);
 
-    static const int TRAIN_SPEED = 35 * 1000 / 60; // 35 km/h
-    static const int TRANSFER_TIME = 3 * 60; // 3 minutes
+    constexpr static const double TRAIN_SPEED = 35.0 * 1000 / 60 / 60; // 35 km/h
+    constexpr static const double TRANSFER_TIME = 3 * 60; // 3 minutes
 
 };
 

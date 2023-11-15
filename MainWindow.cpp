@@ -144,9 +144,9 @@ void MainWindow::onButtonSearchTimeClicked() {
     }
 
     QList<Edge*> path;
-    int time = net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 0);
+    double time = net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 0);
     net_scene_->highlightPath(path);
-    QString result = "最短时间为" + QString::number((time + 60) / 60) + "分钟\n" + net_->getPathString(path);
+    QString result = "最短时间为" + QString::number(int((time + 60) / 60.0)) + "分钟\n" + net_->getPathString(path);
     QMessageBox::information(this, "最短时间", result);
 }
 
@@ -157,9 +157,9 @@ void MainWindow::onButtonSearchDistanceClicked() {
     }
 
     QList<Edge*> path;
-    int distance = net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 1);
+    double distance = net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 1);
     net_scene_->highlightPath(path);
-    QString result = "最短路程为" + QString::number(1.0 * distance / 1000) + "千米\n" + net_->getPathString(path);
+    QString result = "最短路程为" + QString::number(distance / 1000) + "千米\n" + net_->getPathString(path);
     QMessageBox::information(this, "最短路程", result);
 }
 

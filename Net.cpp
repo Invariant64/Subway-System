@@ -168,14 +168,14 @@ Edge* Net::getEdgeById(int id) const {
 
 // use Dijkstra algorithm to get the shortest path
 // weight_mode = 0: time, weight_mode = 1: distance
-int Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge*>& path, int weight_mode) {
+double Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge*>& path, int weight_mode) {
     // initialize distance and path
-    int* distance = new int[station_num_];
+    double* distance = new double[station_num_];
     int* visited = new int[station_num_];
     int* prev = new int[station_num_];
     ArcNode** pre_node = new ArcNode*[station_num_];
     for (int i = 0; i < station_num_; i++) {
-        distance[i] = -1;
+        distance[i] = -1.0;
         visited[i] = 0;
         prev[i] = -1;
         pre_node[i] = nullptr;
@@ -185,12 +185,12 @@ int Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge*>&
         prev[arc_node->adj_vex] = start_station_id;
         pre_node[arc_node->adj_vex] = arc_node;
     }
-    distance[start_station_id] = 0;
+    distance[start_station_id] = 0.0;
     visited[start_station_id] = 1;
 
     // Dijkstra algorithm
     for (int i = 1; i < station_num_; i++) {
-        int min = INT_MAX;
+        double min = 10000000.0;
         int k = -1;
         for (int j = 0; j < station_num_; j++) {
             if (!visited[j] && distance[j] != -1 && distance[j] < min) {
@@ -204,7 +204,7 @@ int Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge*>&
         visited[k] = 1;
 
         for (ArcNode *arc_node = adj_list_[k].next; arc_node != nullptr; arc_node = arc_node->next) {
-            if (!visited[arc_node->adj_vex] && (distance[arc_node->adj_vex] == -1 ||
+            if (!visited[arc_node->adj_vex] && (distance[arc_node->adj_vex] < 0 ||
                     distance[k] + getEdgeWeight(pre_node[k], arc_node, weight_mode) < distance[arc_node->adj_vex])) {
                 distance[arc_node->adj_vex] = distance[k] + getEdgeWeight(pre_node[k], arc_node, weight_mode);
                 prev[arc_node->adj_vex] = k;
@@ -227,7 +227,7 @@ int Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge*>&
         path[path.size() - i - 1] = temp;
     }
 
-    int ans = distance[end_station_id];
+    double ans = distance[end_station_id];
 
     delete[] distance;
     delete[] visited;
@@ -237,7 +237,7 @@ int Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge*>&
     return ans;
 }
 
-int Net::getShortestPath(const QString& start_station_name, const QString& end_station_name, QList<Edge*>& path, int weight_mode) {
+double Net::getShortestPath(const QString& start_station_name, const QString& end_station_name, QList<Edge*>& path, int weight_mode) {
     return getShortestPath(station_name_to_id_->value(start_station_name),
                            station_name_to_id_->value(end_station_name), path, weight_mode);
 }
@@ -258,19 +258,19 @@ void Net::buildAdjList() {
     }
 }
 
-int Net::getEdgeWeight(ArcNode *pre_node, ArcNode *arc_node, int weight_mode) {
+double Net::getEdgeWeight(ArcNode *pre_node, ArcNode *arc_node, int weight_mode) {
     if (arc_node == nullptr) {
         return -1;
     }
     switch (weight_mode) {
         case 0:
             if (pre_node == nullptr) {
-                return arc_node->edge->getWeightDistance() / TRAIN_SPEED;
+                return 1.0 * arc_node->edge->getWeightDistance() / TRAIN_SPEED;
             }
             if (pre_node->edge->getLineId() != arc_node->edge->getLineId()) {
-                return arc_node->edge->getWeightDistance() / TRAIN_SPEED + TRANSFER_TIME;
+                return 1.0 * arc_node->edge->getWeightDistance() / TRAIN_SPEED + TRANSFER_TIME;
             }
-            return arc_node->edge->getWeightDistance() / TRAIN_SPEED;
+            return 1.0 * arc_node->edge->getWeightDistance() / TRAIN_SPEED;
         case 1:
             return arc_node->edge->getWeightDistance();
         case 2:
@@ -322,7 +322,7 @@ QString Net::getPathString(const QList<Edge *> &path) const {
     result += "从 " + getStationById(path[0]->getStationId())->getName().toStdString() +
               " 乘坐 " + getLineById(path[0]->getLineId())->getName().toStdString() +
               " 出发\n" + getStationById(path[0]->getStationId())->getName().toStdString();
-    for (int i = 0; i < path.size(); i++) {
+    for (int i = 1; i < path.size(); i++) {
         result += " -> " + getStationById(path[i]->getStationId())->getName().toStdString() + " ";
         if (i != 0) {
             int line_id = path[i]->getLineId();
@@ -333,14 +333,13 @@ QString Net::getPathString(const QList<Edge *> &path) const {
             }
         }
     }
-    result += " -> " + getStationById(path[path.size() - 1]->getNextStationId())->getName().toStdString() + " ";
 
     return result;
 }
 
 QString Net::getShortestPathString(const QString &start_station_name, const QString &end_station_name, int weight_mode) {
     QList<Edge*> path;
-    int sum = getShortestPath(start_station_name, end_station_name, path, weight_mode);
+    double sum = getShortestPath(start_station_name, end_station_name, path, weight_mode);
     if (path.empty()) {
         return "";
     }
@@ -354,6 +353,8 @@ QString Net::getShortestPathString(const QString &start_station_name, const QStr
             break;
         case 2:
             result += "最少换乘为 " + QString::number(sum) + " 次\n";
+            break;
+        default:
             break;
     }
     result += getPathString(path);
