@@ -27,9 +27,18 @@ MainWindow::~MainWindow() {
 void MainWindow::setNet(Net *net) {
     this->net_ = net;
     net_scene_->setNet(net);
+    path_tab_widget_->setNet(net);
 }
 
 void MainWindow::initUI() {
+    setWindowTitle("地铁查询系统");
+
+    QLabel *label_start = new QLabel("起点: ", this);
+    QLabel *label_end = new QLabel("终点: ", this);
+
+    label_start->setMaximumWidth(40);
+    label_end->setMaximumWidth(40);
+
     combo_box_start_line_ = new QComboBox(this);
     combo_box_start_ = new QComboBox(this);
     combo_box_end_line_ = new QComboBox(this);
@@ -41,7 +50,7 @@ void MainWindow::initUI() {
 
     net_scene_ = new NetScene();
     net_scene_->setSceneRect(0, 0, 15000, 10000);
-    view_ = new QGraphicsView();
+    view_ = new ScaleView();
     view_->setScene(net_scene_);
     view_->setRenderHint(QPainter::Antialiasing);
 
@@ -53,23 +62,38 @@ void MainWindow::initUI() {
     auto h_layout_scale = new QHBoxLayout();
     auto h_layout_view = new QHBoxLayout();
 
+    h_layout_start->addWidget(label_start);
     h_layout_start->addWidget(combo_box_start_line_);
     h_layout_start->addWidget(combo_box_start_);
+
+    h_layout_end->addWidget(label_end);
     h_layout_end->addWidget(combo_box_end_line_);
     h_layout_end->addWidget(combo_box_end_);
+
     h_layout_button->addWidget(button_search_time_);
     h_layout_button->addWidget(button_search_distance_);
     h_layout_button->addWidget(button_search_transfer_);
+
     h_layout_scale->addWidget(scale_button_group_);
+
     h_layout_view->addWidget(view_);
 
-    auto main_layout = new QVBoxLayout();
+    auto v_layout_window = new QVBoxLayout();
+    auto v_layout_tab =  new QVBoxLayout();
 
-    main_layout->addLayout(h_layout_start);
-    main_layout->addLayout(h_layout_end);
-    main_layout->addLayout(h_layout_button);
-    main_layout->addLayout(h_layout_scale);
-    main_layout->addLayout(h_layout_view);
+    v_layout_window->addLayout(h_layout_start);
+    v_layout_window->addLayout(h_layout_end);
+    v_layout_window->addLayout(h_layout_button);
+    v_layout_window->addLayout(h_layout_scale);
+    v_layout_window->addLayout(h_layout_view);
+
+    path_tab_widget_ = new PathTabWidget();
+    v_layout_tab->addWidget(path_tab_widget_);
+
+    auto main_layout = new QHBoxLayout();
+
+    main_layout->addLayout(v_layout_window);
+    main_layout->addLayout(v_layout_tab);
 
     setLayout(main_layout);
 }
@@ -96,6 +120,8 @@ void MainWindow::initConnect() {
         onComboBoxEndLineIndexChanged(combo_box_end_line_->currentIndex());
         combo_box_end_->setCurrentIndex(combo_box_end_->findText(net_scene_->selection_widget_->getCurrentStationName()));
     });
+
+    connect(path_tab_widget_, SIGNAL(currentChanged(int)), this, SLOT(onTabWidgetCurrentChanged(int)));
 }
 
 void MainWindow::initComboBoxLine() {
@@ -148,6 +174,8 @@ void MainWindow::onButtonSearchTimeClicked() {
     net_scene_->highlightPath(path);
     QString result = "最短时间为" + QString::number(int((time + 60) / 60.0)) + "分钟\n" + net_->getPathString(path);
     QMessageBox::information(this, "最短时间", result);
+
+    path_tab_widget_->drawPath(path, 0);
 }
 
 void MainWindow::onButtonSearchDistanceClicked() {
@@ -161,6 +189,8 @@ void MainWindow::onButtonSearchDistanceClicked() {
     net_scene_->highlightPath(path);
     QString result = "最短路程为" + QString::number(distance / 1000) + "千米\n" + net_->getPathString(path);
     QMessageBox::information(this, "最短路程", result);
+
+    path_tab_widget_->drawPath(path, 1);
 }
 
 void MainWindow::onButtonSearchTransferClicked() {
@@ -174,6 +204,19 @@ void MainWindow::onButtonSearchTransferClicked() {
     net_scene_->highlightPath(path);
     QString result = "最少换乘" + QString::number(transfer) + "次\n" + net_->getPathString(path);
     QMessageBox::information(this, "最少换乘", result);
+
+    path_tab_widget_->drawPath(path, 2);
+}
+
+void MainWindow::onTabWidgetCurrentChanged(int index) {
+    if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
+        return;
+    }
+
+    QList<Edge*> path;
+    net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, index);
+    net_scene_->highlightPath(path);
+    path_tab_widget_->drawPath(path, index);
 }
 
 

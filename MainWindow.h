@@ -22,6 +22,8 @@
 #include "SelectionWidget.h"
 #include "NetScene.h"
 #include "ScaleButtonGroup.h"
+#include "ScaleView.h"
+#include "PathTabWidget.h"
 
 class MainWindow : public QWidget {
     Q_OBJECT
@@ -40,6 +42,8 @@ private:
 
     ScaleButtonGroup *scale_button_group_;
 
+    PathTabWidget *path_tab_widget_;
+
     void initUI();
     void initConnect();
 
@@ -52,6 +56,8 @@ private slots:
     void onButtonSearchTimeClicked();
     void onButtonSearchDistanceClicked();
     void onButtonSearchTransferClicked();
+
+    void onTabWidgetCurrentChanged(int index);
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
