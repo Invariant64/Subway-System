@@ -169,6 +169,11 @@ Edge* Net::getEdgeById(int id) const {
 // use Dijkstra algorithm to get the shortest path
 // weight_mode = 0: time, weight_mode = 1: distance
 double Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge*>& path, int weight_mode) {
+    // swap start_station_id and end_station_id
+    int temp = start_station_id;
+    start_station_id = end_station_id;
+    end_station_id = temp;
+
     // initialize distance and path
     double* distance = new double[station_num_];
     int* visited = new int[station_num_];
@@ -218,13 +223,6 @@ double Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge
     while (current_station_id != start_station_id) {
         path.append(pre_node[current_station_id]->edge);
         current_station_id = prev[current_station_id];
-    }
-
-    // reverse path
-    for (int i = 0; i < path.size() / 2; i++) {
-        Edge *temp = path[i];
-        path[i] = path[path.size() - i - 1];
-        path[path.size() - i - 1] = temp;
     }
 
     double ans = distance[end_station_id];
@@ -323,16 +321,19 @@ QString Net::getPathString(const QList<Edge *> &path) const {
               " 乘坐 " + getLineById(path[0]->getLineId())->getName().toStdString() +
               " 出发\n" + getStationById(path[0]->getStationId())->getName().toStdString();
     for (int i = 1; i < path.size(); i++) {
-        result += " -> " + getStationById(path[i]->getStationId())->getName().toStdString() + " ";
         if (i != 0) {
             int line_id = path[i]->getLineId();
             int last_line_id = path[i - 1]->getLineId();
             if (last_line_id != line_id && last_line_id != -1) {
                 result += "\n(从 " + getLineById(last_line_id)->getName().toStdString()
-                          + " 转乘至 " + getLineById(line_id)->getName().toStdString() + ") ";
+                          + " 转乘至 " + getLineById(line_id)->getName().toStdString() + ")\n"
+                          + getStationById(path[i - 1]->getStationId())->getName().toStdString();
+                continue;
             }
         }
+        result += " -> " + getStationById(path[i]->getStationId())->getName().toStdString() + " ";
     }
+    result += " -> " + getStationById(path.last()->getNextStationId())->getName().toStdString() + "\n";
 
     return result;
 }

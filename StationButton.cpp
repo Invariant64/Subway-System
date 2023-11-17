@@ -10,7 +10,6 @@ StationButton::StationButton(Station *station, SelectionWidget *selection_widget
 }
 
 void StationButton::initUI() {
-    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
     setRect(position_.x() - RADIUS, position_.y() - RADIUS, RADIUS * 2, RADIUS * 2);
     QPen pen = this->pen();
     pen.setWidth(RADIUS / 10);

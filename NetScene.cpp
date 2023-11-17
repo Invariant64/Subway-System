@@ -115,7 +115,7 @@ void NetScene::highlightPath(QList<Edge *> &path) {
     for (auto edge : path) {
         stations.append(net_->getStationById(edge->getStationId()));
     }
-    stations.append(net_->getStationById(path.first()->getNextStationId()));
+    stations.append(net_->getStationById(path.last()->getNextStationId()));
 
     for (auto station_button : *station_buttons_) {
         bool flag = false;
