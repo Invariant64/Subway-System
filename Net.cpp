@@ -325,9 +325,10 @@ QString Net::getPathString(const QList<Edge *> &path) const {
             int line_id = path[i]->getLineId();
             int last_line_id = path[i - 1]->getLineId();
             if (last_line_id != line_id && last_line_id != -1) {
-                result += "\n(从 " + getLineById(last_line_id)->getName().toStdString()
+                result += + " -> " + getStationById(path[i - 1]->getNextStationId())->getName().toStdString()
+                          + "\n(从 " + getLineById(last_line_id)->getName().toStdString()
                           + " 转乘至 " + getLineById(line_id)->getName().toStdString() + ")\n"
-                          + getStationById(path[i - 1]->getStationId())->getName().toStdString();
+                          + getStationById(path[i - 1]->getNextStationId())->getName().toStdString();
                 continue;
             }
         }
@@ -360,6 +361,21 @@ QString Net::getShortestPathString(const QString &start_station_name, const QStr
     }
     result += getPathString(path);
     return result;
+}
+
+void Net::statPath(const QList<Edge *> &path, int &station_num, int &transfer_num, double &time, double &distance) const {
+    station_num = path.size() + 1;
+    transfer_num = 0;
+    time = 0;
+    distance = 0;
+    for (int i = 0; i < path.size(); i++) {
+        if (i != 0 && path[i]->getLineId() != path[i - 1]->getLineId()) {
+            transfer_num++;
+        }
+        time += 1.0 * path[i]->getWeightDistance() / TRAIN_SPEED;
+        distance += path[i]->getWeightDistance();
+    }
+    time += transfer_num * TRANSFER_TIME;
 }
 
 

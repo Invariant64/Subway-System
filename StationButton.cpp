@@ -20,8 +20,8 @@ void StationButton::initUI() {
     // 显示名字
     QGraphicsTextItem *text_item = new QGraphicsTextItem(station_->getName());
     text_item->setZValue(1);
-    text_item->setPos(position_.x() - 3 * RADIUS, position_.y() - 3 * RADIUS);
     text_item->setScale(5);
+    text_item->setPos(position_.x() - text_item->boundingRect().width() / 2 * 5, position_.y() - 3 * RADIUS);
     text_item->setParentItem(this);
 }
 

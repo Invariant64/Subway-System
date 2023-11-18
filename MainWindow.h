@@ -42,6 +42,13 @@ private:
 
     ScaleButtonGroup *scale_button_group_;
 
+    QLabel *label_start_;
+    QLabel *label_end_;
+    QLabel *label_station_;
+    QLabel *label_time_;
+    QLabel *label_distance_;
+    QLabel *label_transfer_;
+
     PathTabWidget *path_tab_widget_;
 
     void initUI();

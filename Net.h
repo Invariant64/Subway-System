@@ -70,6 +70,8 @@ public:
 
     QString getShortestPathString(const QString& start_station_name, const QString& end_station_name, int weight_mode = 0);
 
+    void statPath(const QList<Edge*>& path, int& station_num, int& transfer_num, double& time, double& distance) const;
+
     constexpr static const double TRAIN_SPEED = 35.0 * 1000 / 60 / 60; // 35 km/h
     constexpr static const double TRANSFER_TIME = 3 * 60; // 3 minutes
 

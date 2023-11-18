@@ -87,7 +87,20 @@ void MainWindow::initUI() {
     v_layout_window->addLayout(h_layout_scale);
     v_layout_window->addLayout(h_layout_view);
 
+    label_start_ = new QLabel("起点: ", this);
+    label_end_ = new QLabel("终点: ", this);
+    label_station_ = new QLabel("途径站个数：", this);
+    label_time_ = new QLabel("总耗时：", this);
+    label_distance_ = new QLabel("总路程：", this);
+    label_transfer_ = new QLabel("换乘次数：", this);
     path_tab_widget_ = new PathTabWidget();
+
+    v_layout_tab->addWidget(label_start_);
+    v_layout_tab->addWidget(label_end_);
+    v_layout_tab->addWidget(label_station_);
+    v_layout_tab->addWidget(label_time_);
+    v_layout_tab->addWidget(label_distance_);
+    v_layout_tab->addWidget(label_transfer_);
     v_layout_tab->addWidget(path_tab_widget_);
 
     auto main_layout = new QHBoxLayout();
@@ -217,6 +230,16 @@ void MainWindow::onTabWidgetCurrentChanged(int index) {
     net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, index);
     net_scene_->highlightPath(path);
     path_tab_widget_->drawPath(path, index);
+
+    int station_num, transfer_num;
+    double time, distance;
+    net_->statPath(path, station_num, transfer_num, time, distance);
+    label_start_->setText("起点: " + combo_box_start_->currentText());
+    label_end_->setText("终点: " + combo_box_end_->currentText());
+    label_station_->setText("途径站个数：" + QString::number(station_num));
+    label_time_->setText("总耗时：" + QString::number(int((time + 60) / 60.0)) + "分钟");
+    label_distance_->setText("总路程：" + QString::number(distance / 1000) + "千米");
+    label_transfer_->setText("换乘次数：" + QString::number(transfer_num));
 }
 
 
