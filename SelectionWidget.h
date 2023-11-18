@@ -8,6 +8,7 @@
 
 #include <QWidget>
 #include <QPushButton>
+#include <QLabel>
 
 class SelectionWidget : public QWidget{
     Q_OBJECT
@@ -19,9 +20,12 @@ public:
     void setCurrentStationName(QString name);
     QString getCurrentStationName() const;
 
-    QPushButton *setStartButton;
-    QPushButton *setEndButton;
-    QPushButton *cancelButton;
+    QPushButton *set_start_button_;
+    QPushButton *set_end_button_;
+    QPushButton *cancel_button_;
+
+    QLabel *label_;
+
 
 private:
     void initUI();

@@ -119,14 +119,14 @@ void MainWindow::initConnect() {
     connect(button_search_distance_, SIGNAL(clicked()), this, SLOT(onButtonSearchDistanceClicked()));
     connect(button_search_transfer_, SIGNAL(clicked()), this, SLOT(onButtonSearchTransferClicked()));
 
-    connect(net_scene_->selection_widget_->setStartButton, &QPushButton::clicked, this, [=](){
+    connect(net_scene_->selection_widget_->set_start_button_, &QPushButton::clicked, this, [=](){
         net_scene_->selection_widget_->hide();
         Line *start_line = net_->getFirstLineByStationName(net_scene_->selection_widget_->getCurrentStationName());
         combo_box_start_line_->setCurrentIndex(combo_box_start_line_->findText(start_line->getName()));
         onComboBoxStartLineIndexChanged(combo_box_start_line_->currentIndex());
         combo_box_start_->setCurrentIndex(combo_box_start_->findText(net_scene_->selection_widget_->getCurrentStationName()));
     });
-    connect(net_scene_->selection_widget_->setEndButton, &QPushButton::clicked, this, [=](){
+    connect(net_scene_->selection_widget_->set_end_button_, &QPushButton::clicked, this, [=](){
         net_scene_->selection_widget_->hide();
         Line *end_line = net_->getFirstLineByStationName(net_scene_->selection_widget_->getCurrentStationName());
         combo_box_end_line_->setCurrentIndex(combo_box_end_line_->findText(end_line->getName()));

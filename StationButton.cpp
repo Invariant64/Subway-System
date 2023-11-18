@@ -6,6 +6,7 @@
 
 StationButton::StationButton(Station *station, SelectionWidget *selection_widget) :
         station_(station), position_(station->getPosition()), QGraphicsEllipseItem(), selection_widget_(selection_widget) {
+    setAcceptHoverEvents(true);
     initUI();
 }
 
@@ -52,7 +53,19 @@ void StationButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     selection_widget_->move(position_.x(), position_.y() + 30);
     selection_widget_->show();
     selection_widget_->setCurrentStationName(station_->getName());
-    selection_widget_->label->setText(QString("%1 %2").arg(position_.x()).arg(position_.y()));
+    selection_widget_->label_->setText(QString("%1 %2").arg(position_.x()).arg(position_.y()));
+}
+
+void StationButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
+    setToolTip(station_->getName());
+    setCursor(Qt::PointingHandCursor);
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void StationButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
+    setToolTip("");
+    unsetCursor();
+    QGraphicsItem::hoverLeaveEvent(event);
 }
 
 

@@ -5,15 +5,21 @@
 #include "ScaleView.h"
 
 
-ScaleView::ScaleView(QWidget *parent) : QGraphicsView(parent) {}
+ScaleView::ScaleView(QWidget *parent) : QGraphicsView(parent) {
+    setDragMode(QGraphicsView::ScrollHandDrag);
+    scale(0.25, 0.25);
+}
 
 void ScaleView::wheelEvent(QWheelEvent *event) {
-    // setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-    double scaleFactor = 1.05;
+    double scaleFactor = 1.02;
     if (event->angleDelta().y() > 0) {
-        scale(scaleFactor, scaleFactor);
+        if (transform().m11() < 0.5) {
+            scale(scaleFactor, scaleFactor);
+        }
     }
     else {
-        scale(1 / scaleFactor, 1 / scaleFactor);
+        if (transform().m11() > 0.0625) {
+            scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+        }
     }
 }

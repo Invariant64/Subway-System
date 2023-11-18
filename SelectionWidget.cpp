@@ -12,26 +12,26 @@ SelectionWidget::SelectionWidget(QWidget *parent) {
 }
 
 SelectionWidget::~SelectionWidget() {
-    delete setStartButton;
-    delete setEndButton;
-    delete cancelButton;
+    delete set_start_button_;
+    delete set_end_button_;
+    delete cancel_button_;
 }
 
 void SelectionWidget::initUI() {
-    setStartButton = new QPushButton("设为起点", this);
-    setEndButton = new QPushButton("设为终点", this);
-    cancelButton = new QPushButton("取消", this);
+    set_start_button_ = new QPushButton("设为起点", this);
+    set_end_button_ = new QPushButton("设为终点", this);
+    cancel_button_ = new QPushButton("取消", this);
 
     auto v_layout = new QVBoxLayout();
-    v_layout->addWidget(setStartButton);
-    v_layout->addWidget(setEndButton);
-    v_layout->addWidget(cancelButton);
+    v_layout->addWidget(set_start_button_);
+    v_layout->addWidget(set_end_button_);
+    v_layout->addWidget(cancel_button_);
 
     setLayout(v_layout);
 }
 
 void SelectionWidget::initConnect() {
-    connect(cancelButton, &QPushButton::clicked, this, [=](){
+    connect(cancel_button_, &QPushButton::clicked, this, [=](){
         this->hide();
         current_station_name_ = "";
     });
