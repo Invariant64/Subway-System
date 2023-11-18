@@ -7,7 +7,10 @@
 #include <QFile>
 #include <QTextStream>
 #include <QMap>
+#include <Queue>
 
+using std::priority_queue;
+using std::pair;
 
 Net::Net() {
     station_num_ = 0;
@@ -169,51 +172,53 @@ Edge* Net::getEdgeById(int id) const {
 // use Dijkstra algorithm to get the shortest path
 // weight_mode = 0: time, weight_mode = 1: distance
 double Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge*>& path, int weight_mode) {
-    // swap start_station_id and end_station_id
-    int temp = start_station_id;
-    start_station_id = end_station_id;
-    end_station_id = temp;
-
     // initialize distance and path
+    double weight;
     double* distance = new double[station_num_];
-    int* visited = new int[station_num_];
-    int* prev = new int[station_num_];
+    int *vis = new int[station_num_];
     ArcNode** pre_node = new ArcNode*[station_num_];
+    QList<ArcNode*> pre_list[station_num_];
     for (int i = 0; i < station_num_; i++) {
-        distance[i] = -1.0;
-        visited[i] = 0;
-        prev[i] = -1;
+        distance[i] = 10000000;
         pre_node[i] = nullptr;
+        vis[i] = 0;
     }
-    for (ArcNode *arc_node = adj_list_[start_station_id].next; arc_node != nullptr; arc_node = arc_node->next) {
-        distance[arc_node->adj_vex] = getEdgeWeight(nullptr, arc_node, weight_mode);
-        prev[arc_node->adj_vex] = start_station_id;
-        pre_node[arc_node->adj_vex] = arc_node;
-    }
+
+    priority_queue< pair<double, int> > q;
     distance[start_station_id] = 0.0;
-    visited[start_station_id] = 1;
+    q.emplace(0.0, start_station_id);
 
     // Dijkstra algorithm
-    for (int i = 1; i < station_num_; i++) {
-        double min = 10000000.0;
-        int k = -1;
-        for (int j = 0; j < station_num_; j++) {
-            if (!visited[j] && distance[j] != -1 && distance[j] < min) {
-                min = distance[j];
-                k = j;
-            }
+    while (!q.empty()) {
+        int k = q.top().second;
+        q.pop();
+
+        if (vis[k]) {
+            continue;
         }
-        if (k == -1) {
-            break;
-        }
-        visited[k] = 1;
+        vis[k] = 1;
 
         for (ArcNode *arc_node = adj_list_[k].next; arc_node != nullptr; arc_node = arc_node->next) {
-            if (!visited[arc_node->adj_vex] && (distance[arc_node->adj_vex] < 0 ||
-                    distance[k] + getEdgeWeight(pre_node[k], arc_node, weight_mode) < distance[arc_node->adj_vex])) {
-                distance[arc_node->adj_vex] = distance[k] + getEdgeWeight(pre_node[k], arc_node, weight_mode);
-                prev[arc_node->adj_vex] = k;
-                pre_node[arc_node->adj_vex] = arc_node;
+            if (pre_list[k].empty()) {
+                weight = distance[k] + getEdgeWeight(pre_node[k], arc_node, weight_mode);
+                if (weight < distance[arc_node->adj_vex]) {
+                    distance[arc_node->adj_vex] = weight;
+                    pre_node[arc_node->adj_vex] = arc_node;
+                    q.emplace(-weight, arc_node->adj_vex);
+                }
+                pre_list[arc_node->adj_vex].append(arc_node);
+            }
+            else {
+                for (auto pre_arc_node : pre_list[k]) {
+                    weight = distance[k] + getEdgeWeight(pre_arc_node, arc_node, weight_mode);
+                    if (weight < distance[arc_node->adj_vex]) {
+                        distance[arc_node->adj_vex] = weight;
+                        pre_node[arc_node->adj_vex] = arc_node;
+                        pre_node[k] = pre_arc_node;
+                        q.emplace(-weight, arc_node->adj_vex);
+                    }
+                }
+                pre_list[arc_node->adj_vex].append(arc_node);
             }
         }
     }
@@ -222,14 +227,20 @@ double Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge
     int current_station_id = end_station_id;
     while (current_station_id != start_station_id) {
         path.append(pre_node[current_station_id]->edge);
-        current_station_id = prev[current_station_id];
+        current_station_id = pre_node[current_station_id]->edge->getStationId();
+    }
+
+    // reverse path
+    for (int i = 0; i < path.size() / 2; i++) {
+        Edge *temp = path[i];
+        path[i] = path[path.size() - i - 1];
+        path[path.size() - i - 1] = temp;
     }
 
     double ans = distance[end_station_id];
 
     delete[] distance;
-    delete[] visited;
-    delete[] prev;
+    delete[] vis;
     delete[] pre_node;
 
     return ans;
@@ -249,10 +260,10 @@ void Net::buildAdjList() {
     }
     for (auto edge : *edges_) {
         ArcNode *arc_node = new ArcNode();
-        arc_node->adj_vex = edge->getStationId();
+        arc_node->adj_vex = edge->getNextStationId();
         arc_node->edge = edge;
-        arc_node->next = adj_list_[edge->getNextStationId()].next;
-        adj_list_[edge->getNextStationId()].next = arc_node;
+        arc_node->next = adj_list_[edge->getStationId()].next;
+        adj_list_[edge->getStationId()].next = arc_node;
     }
 }
 
