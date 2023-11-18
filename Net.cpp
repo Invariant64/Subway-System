@@ -378,6 +378,27 @@ void Net::statPath(const QList<Edge *> &path, int &station_num, int &transfer_nu
     time += transfer_num * TRANSFER_TIME;
 }
 
+QString Net::getEndStationNameByEdge(Edge *edge) const {
+    Line *line = getLineById(edge->getLineId());
+    QList<int> *stations_id = line->getStationsId();
+    int from = stations_id->indexOf(edge->getStationId());
+    int to = stations_id->indexOf(edge->getNextStationId());
+    if (from < to) {
+        return getStationById(stations_id->last())->getName();
+    }
+    else {
+        return getStationById(stations_id->first())->getName();
+    }
+}
+
+int Net::getSinglePathTimeMinutes(const QList<Edge *> &path) const {
+    double distance = 0;
+    for (auto edge : path) {
+        distance += edge->getWeightDistance();
+    }
+    return distance / TRAIN_SPEED / 60;
+}
+
 
 
 

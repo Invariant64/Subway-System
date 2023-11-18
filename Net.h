@@ -72,6 +72,10 @@ public:
 
     void statPath(const QList<Edge*>& path, int& station_num, int& transfer_num, double& time, double& distance) const;
 
+    QString getEndStationNameByEdge(Edge* edge) const;
+
+    int getSinglePathTimeMinutes(const QList<Edge*>& path) const;
+
     constexpr static const double TRAIN_SPEED = 35.0 * 1000 / 60 / 60; // 35 km/h
     constexpr static const double TRANSFER_TIME = 3 * 60; // 3 minutes
 
