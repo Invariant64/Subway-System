@@ -448,7 +448,7 @@ void Net::getLinesOfStation(int station_id, QList<Line *> &lines) const {
     }
 }
 
-double Net::getPriceByDistance(double distance) const {
+double Net::getPriceByDistance(double distance) {
     if (distance <= 0) return -1;
     if (distance <= 6000) return 3;
     if (distance <= 12000) return 4;

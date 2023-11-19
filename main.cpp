@@ -13,8 +13,7 @@ int main(int argc, char *argv[]) {
     MainWindow main_window;
 
     Net *net = new Net(Station_File_Path, Edge_File_Path, Line_File_Path);
-    main_window.setNet(net);
-    main_window.initComboBoxLine();
+    main_window.init(net);
 
     main_window.show();
 

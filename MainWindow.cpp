@@ -24,6 +24,15 @@ MainWindow::~MainWindow() {
     delete view_;
 }
 
+void MainWindow::init(Net *net) {
+    if (net == nullptr) {
+        return;
+    }
+    setNet(net);
+    initComboBoxLine();
+    net_scene_->init();
+}
+
 void MainWindow::setNet(Net *net) {
     this->net_ = net;
     net_scene_->setNet(net);
@@ -33,8 +42,8 @@ void MainWindow::setNet(Net *net) {
 void MainWindow::initUI() {
     setWindowTitle("地铁查询系统");
 
-    QLabel *label_start = new QLabel("起点: ", this);
-    QLabel *label_end = new QLabel("终点: ", this);
+    auto *label_start = new QLabel("起点: ", this);
+    auto *label_end = new QLabel("终点: ", this);
 
     label_start->setMaximumWidth(40);
     label_end->setMaximumWidth(40);
@@ -165,7 +174,6 @@ void MainWindow::initComboBoxLine() {
     }
     combo_box_start_line_->addItem("所有线路");
     combo_box_end_line_->addItem("所有线路");
-    net_scene_->init();
 }
 
 void MainWindow::onComboBoxStartLineIndexChanged(int index) {
@@ -211,7 +219,7 @@ void MainWindow::onTabWidgetCurrentChanged(int index) {
     net_->statPath(path, station_num, transfer_num, time, distance);
     path_info_box_->setAll(time, distance, transfer_num, station_num);
 
-    ticket_group_box_->setAll(combo_box_start_->currentText(), combo_box_end_->currentText(), net_->getPriceByDistance(distance));
+    ticket_group_box_->setAll(combo_box_start_->currentText(), combo_box_end_->currentText(), Net::getPriceByDistance(distance));
 }
 
 

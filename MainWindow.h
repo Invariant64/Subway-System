@@ -62,14 +62,15 @@ private slots:
 
     void onTabWidgetCurrentChanged(int index);
 
+    void initComboBoxLine();
+
+    void setNet(Net *net);
+
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void setNet(Net *net);
-
-    void initComboBoxLine();
-
+    void init(Net *net);
 };
 
 

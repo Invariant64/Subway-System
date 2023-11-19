@@ -80,7 +80,7 @@ public:
 
     void getLinesOfStation(int station_id, QList<Line*>& lines) const;
 
-    double getPriceByDistance(double distance) const;
+    static double getPriceByDistance(double distance);
 
     constexpr static const double TRAIN_SPEED = 35.0 * 1000 / 60 / 60; // 35 km/h
     constexpr static const double TRANSFER_TIME = 3 * 60; // 3 minutes
