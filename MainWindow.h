@@ -24,6 +24,7 @@
 #include "ScaleButtonGroup.h"
 #include "ScaleView.h"
 #include "PathTabWidget.h"
+#include "TicketGroupBox.h"
 
 class MainWindow : public QWidget {
     Q_OBJECT
@@ -36,6 +37,7 @@ private:
     QPushButton *button_search_time_;
     QPushButton *button_search_distance_;
     QPushButton *button_search_transfer_;
+    QPushButton *button_clear_;
 
     NetScene *net_scene_;
     QGraphicsView *view_;
@@ -51,6 +53,8 @@ private:
 
     PathTabWidget *path_tab_widget_;
 
+    TicketGroupBox *ticket_group_box_;
+
     void initUI();
     void initConnect();
 
@@ -59,10 +63,6 @@ private:
 private slots:
     void onComboBoxStartLineIndexChanged(int index); // 当起始线路下拉框的选项改变时
     void onComboBoxEndLineIndexChanged(int index); // 当终点线路下拉框的选项改变时
-
-    void onButtonSearchTimeClicked();
-    void onButtonSearchDistanceClicked();
-    void onButtonSearchTransferClicked();
 
     void onTabWidgetCurrentChanged(int index);
 

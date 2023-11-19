@@ -55,6 +55,7 @@ void MainWindow::initUI() {
     view_->setRenderHint(QPainter::Antialiasing);
 
     scale_button_group_ = new ScaleButtonGroup(QPointF(2, 2), QPointF(0.5, 0.5), QPointF(4, 4), QPointF(0.0625, 0.0625), view_, this);
+    button_clear_ = new QPushButton("清除高亮", this);
 
     auto h_layout_start = new QHBoxLayout();
     auto h_layout_end = new QHBoxLayout();
@@ -75,6 +76,7 @@ void MainWindow::initUI() {
     h_layout_button->addWidget(button_search_transfer_);
 
     h_layout_scale->addWidget(scale_button_group_);
+    h_layout_scale->addWidget(button_clear_);
 
     h_layout_view->addWidget(view_);
 
@@ -94,6 +96,7 @@ void MainWindow::initUI() {
     label_distance_ = new QLabel("总路程：", this);
     label_transfer_ = new QLabel("换乘次数：", this);
     path_tab_widget_ = new PathTabWidget();
+    ticket_group_box_ = new TicketGroupBox();
 
     v_layout_tab->addWidget(label_start_);
     v_layout_tab->addWidget(label_end_);
@@ -102,6 +105,7 @@ void MainWindow::initUI() {
     v_layout_tab->addWidget(label_distance_);
     v_layout_tab->addWidget(label_transfer_);
     v_layout_tab->addWidget(path_tab_widget_);
+    v_layout_tab->addWidget(ticket_group_box_);
 
     auto main_layout = new QHBoxLayout();
 
@@ -115,9 +119,29 @@ void MainWindow::initConnect() {
     connect(combo_box_start_line_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxStartLineIndexChanged(int)));
     connect(combo_box_end_line_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxEndLineIndexChanged(int)));
 
-    connect(button_search_time_, SIGNAL(clicked()), this, SLOT(onButtonSearchTimeClicked()));
-    connect(button_search_distance_, SIGNAL(clicked()), this, SLOT(onButtonSearchDistanceClicked()));
-    connect(button_search_transfer_, SIGNAL(clicked()), this, SLOT(onButtonSearchTransferClicked()));
+    connect(button_search_time_, &QPushButton::clicked, this, [=](){
+        if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
+            QMessageBox::warning(this, "查询失败", "起点站和终点站不能相同！");
+            return;
+        }
+        onTabWidgetCurrentChanged(0);
+    });
+
+    connect(button_search_distance_, &QPushButton::clicked, this, [=](){
+        if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
+            QMessageBox::warning(this, "查询失败", "起点站和终点站不能相同！");
+            return;
+        }
+        onTabWidgetCurrentChanged(1);
+    });
+
+    connect(button_search_transfer_, &QPushButton::clicked, this, [=](){
+        if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
+            QMessageBox::warning(this, "查询失败", "起点站和终点站不能相同！");
+            return;
+        }
+        onTabWidgetCurrentChanged(2);
+    });
 
     connect(net_scene_->selection_widget_->set_start_button_, &QPushButton::clicked, this, [=](){
         net_scene_->selection_widget_->hide();
@@ -135,6 +159,17 @@ void MainWindow::initConnect() {
     });
 
     connect(path_tab_widget_, SIGNAL(currentChanged(int)), this, SLOT(onTabWidgetCurrentChanged(int)));
+
+    connect(button_clear_, &QPushButton::clicked, this, [=](){
+        net_scene_->clearHighlight();
+        path_tab_widget_->clear();
+        label_start_->setText("起点: ");
+        label_end_->setText("终点: ");
+        label_station_->setText("途径站个数：");
+        label_time_->setText("总耗时：");
+        label_distance_->setText("总路程：");
+        label_transfer_->setText("换乘次数：");
+    });
 }
 
 void MainWindow::initComboBoxLine() {
@@ -176,51 +211,6 @@ void MainWindow::onComboBoxEndLineIndexChanged(int index) {
     }
 }
 
-void MainWindow::onButtonSearchTimeClicked() {
-    if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
-        QMessageBox::information(this, "错误", "起点和终点相同");
-        return;
-    }
-
-    QList<Edge*> path;
-    double time = net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 0);
-    net_scene_->highlightPath(path);
-    QString result = "最短时间为" + QString::number(int((time + 60) / 60.0)) + "分钟\n" + net_->getPathString(path);
-    QMessageBox::information(this, "最短时间", result);
-
-    path_tab_widget_->drawPath(path, 0);
-}
-
-void MainWindow::onButtonSearchDistanceClicked() {
-    if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
-        QMessageBox::information(this, "错误", "起点和终点相同");
-        return;
-    }
-
-    QList<Edge*> path;
-    double distance = net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 1);
-    net_scene_->highlightPath(path);
-    QString result = "最短路程为" + QString::number(distance / 1000) + "千米\n" + net_->getPathString(path);
-    QMessageBox::information(this, "最短路程", result);
-
-    path_tab_widget_->drawPath(path, 1);
-}
-
-void MainWindow::onButtonSearchTransferClicked() {
-    if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
-        QMessageBox::information(this, "错误", "起点和终点相同");
-        return;
-    }
-
-    QList<Edge*> path;
-    int transfer = net_->getShortestPath(combo_box_start_->currentText(), combo_box_end_->currentText(), path, 2);
-    net_scene_->highlightPath(path);
-    QString result = "最少换乘" + QString::number(transfer) + "次\n" + net_->getPathString(path);
-    QMessageBox::information(this, "最少换乘", result);
-
-    path_tab_widget_->drawPath(path, 2);
-}
-
 void MainWindow::onTabWidgetCurrentChanged(int index) {
     if (combo_box_start_->currentText() == combo_box_end_->currentText()) {
         return;
@@ -240,6 +230,8 @@ void MainWindow::onTabWidgetCurrentChanged(int index) {
     label_time_->setText("总耗时：" + QString::number(int((time + 60) / 60.0)) + "分钟");
     label_distance_->setText("总路程：" + QString::number(distance / 1000) + "千米");
     label_transfer_->setText("换乘次数：" + QString::number(transfer_num));
+
+    ticket_group_box_->setAll(combo_box_start_->currentText(), combo_box_end_->currentText(), net_->getPriceByDistance(distance));
 }
 
 

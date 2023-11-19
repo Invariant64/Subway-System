@@ -29,6 +29,8 @@ public:
     void setNet(Net *net);
 
     void drawPath(QList<Edge*> &path, int weight_mode);
+
+    void clear();
 };
 
 

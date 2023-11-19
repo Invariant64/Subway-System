@@ -42,3 +42,9 @@ void PathTabWidget::drawPath(QList<Edge *> &path, int weight_mode) {
     scene_distance_->drawPath(path);
     scene_transfer_->drawPath(path);
 }
+
+void PathTabWidget::clear() {
+    scene_time_->clear();
+    scene_distance_->clear();
+    scene_transfer_->clear();
+}
