@@ -53,7 +53,7 @@ void StationButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     selection_widget_->move(position_.x(), position_.y() + 30);
     selection_widget_->show();
     selection_widget_->setCurrentStationName(station_->getName());
-    selection_widget_->label_->setText(QString("%1 %2").arg(position_.x()).arg(position_.y()));
+    selection_widget_->label_->setText(station_->getName());
 }
 
 void StationButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {

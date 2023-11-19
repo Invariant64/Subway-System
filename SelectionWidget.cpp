@@ -12,17 +12,22 @@ SelectionWidget::SelectionWidget(QWidget *parent) {
 }
 
 SelectionWidget::~SelectionWidget() {
+    delete label_;
     delete set_start_button_;
     delete set_end_button_;
     delete cancel_button_;
 }
 
 void SelectionWidget::initUI() {
+    label_ = new QLabel("", this);
+    label_->setAlignment(Qt::AlignCenter);
+
     set_start_button_ = new QPushButton("设为起点", this);
     set_end_button_ = new QPushButton("设为终点", this);
     cancel_button_ = new QPushButton("取消", this);
 
     auto v_layout = new QVBoxLayout();
+    v_layout->addWidget(label_);
     v_layout->addWidget(set_start_button_);
     v_layout->addWidget(set_end_button_);
     v_layout->addWidget(cancel_button_);
