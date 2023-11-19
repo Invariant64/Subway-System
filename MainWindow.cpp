@@ -55,7 +55,7 @@ void MainWindow::initUI() {
     view_->setRenderHint(QPainter::Antialiasing);
 
     scale_button_group_ = new ScaleButtonGroup(QPointF(2, 2), QPointF(0.5, 0.5), QPointF(4, 4), QPointF(0.0625, 0.0625), view_, this);
-    button_clear_ = new QPushButton("清除高亮", this);
+    button_clear_ = new QPushButton("重置", this);
 
     auto h_layout_start = new QHBoxLayout();
     auto h_layout_end = new QHBoxLayout();
@@ -89,21 +89,11 @@ void MainWindow::initUI() {
     v_layout_window->addLayout(h_layout_scale);
     v_layout_window->addLayout(h_layout_view);
 
-    label_start_ = new QLabel("起点: ", this);
-    label_end_ = new QLabel("终点: ", this);
-    label_station_ = new QLabel("途径站个数：", this);
-    label_time_ = new QLabel("总耗时：", this);
-    label_distance_ = new QLabel("总路程：", this);
-    label_transfer_ = new QLabel("换乘次数：", this);
+    path_info_box_ = new PathInfoBox();
     path_tab_widget_ = new PathTabWidget();
     ticket_group_box_ = new TicketGroupBox();
 
-    v_layout_tab->addWidget(label_start_);
-    v_layout_tab->addWidget(label_end_);
-    v_layout_tab->addWidget(label_station_);
-    v_layout_tab->addWidget(label_time_);
-    v_layout_tab->addWidget(label_distance_);
-    v_layout_tab->addWidget(label_transfer_);
+    v_layout_tab->addWidget(path_info_box_);
     v_layout_tab->addWidget(path_tab_widget_);
     v_layout_tab->addWidget(ticket_group_box_);
 
@@ -163,12 +153,7 @@ void MainWindow::initConnect() {
     connect(button_clear_, &QPushButton::clicked, this, [=](){
         net_scene_->clearHighlight();
         path_tab_widget_->clear();
-        label_start_->setText("起点: ");
-        label_end_->setText("终点: ");
-        label_station_->setText("途径站个数：");
-        label_time_->setText("总耗时：");
-        label_distance_->setText("总路程：");
-        label_transfer_->setText("换乘次数：");
+        path_info_box_->clear();
     });
 }
 
@@ -224,12 +209,7 @@ void MainWindow::onTabWidgetCurrentChanged(int index) {
     int station_num, transfer_num;
     double time, distance;
     net_->statPath(path, station_num, transfer_num, time, distance);
-    label_start_->setText("起点: " + combo_box_start_->currentText());
-    label_end_->setText("终点: " + combo_box_end_->currentText());
-    label_station_->setText("途径站个数：" + QString::number(station_num));
-    label_time_->setText("总耗时：" + QString::number(int((time + 60) / 60.0)) + "分钟");
-    label_distance_->setText("总路程：" + QString::number(distance / 1000) + "千米");
-    label_transfer_->setText("换乘次数：" + QString::number(transfer_num));
+    path_info_box_->setAll(time, distance, transfer_num, station_num);
 
     ticket_group_box_->setAll(combo_box_start_->currentText(), combo_box_end_->currentText(), net_->getPriceByDistance(distance));
 }
