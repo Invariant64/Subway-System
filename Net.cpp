@@ -7,7 +7,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QMap>
-#include <Queue>
+#include <QDebug>
 
 using std::priority_queue;
 using std::pair;
@@ -172,62 +172,61 @@ Edge* Net::getEdgeById(int id) const {
 // use Dijkstra algorithm to get the shortest path
 // weight_mode = 0: time, weight_mode = 1: distance
 double Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge*>& path, int weight_mode) {
-    // initialize distance and path
-    double weight;
-    double* distance = new double[station_num_];
-    int *vis = new int[station_num_];
-    ArcNode** pre_node = new ArcNode*[station_num_];
-    QList<ArcNode*> pre_list[station_num_];
-    for (int i = 0; i < station_num_; i++) {
-        distance[i] = 10000000;
-        pre_node[i] = nullptr;
-        vis[i] = 0;
-    }
+    QList<Line*> start_lines, end_lines;
+    getLinesOfStation(start_station_id, start_lines);
+    getLinesOfStation(end_station_id, end_lines);
+    double ans = 10000000;
 
-    priority_queue< pair<double, int> > q;
-    distance[start_station_id] = 0.0;
-    q.emplace(0.0, start_station_id);
+    for (auto & start_line : start_lines) {
+        for (auto & end_line : end_lines) {
+            int start_adj = station_line_to_adj_->value(std::make_pair(start_station_id, start_line->getId()));
+            int end_adj = station_line_to_adj_->value(std::make_pair(end_station_id, end_line->getId()));
 
-    // Dijkstra algorithm
-    while (!q.empty()) {
-        int k = q.top().second;
-        q.pop();
-
-        if (vis[k]) {
-            continue;
-        }
-        vis[k] = 1;
-
-        for (ArcNode *arc_node = adj_list_[k].next; arc_node != nullptr; arc_node = arc_node->next) {
-            if (pre_list[k].empty()) {
-                weight = distance[k] + getEdgeWeight(pre_node[k], arc_node, weight_mode);
-                if (weight < distance[arc_node->adj_vex]) {
-                    distance[arc_node->adj_vex] = weight;
-                    pre_node[arc_node->adj_vex] = arc_node;
-                    q.emplace(-weight, arc_node->adj_vex);
-                }
-                pre_list[arc_node->adj_vex].append(arc_node);
+            // initialize distance and path
+            auto* distance = new double[station_num_ * 2];
+            auto* pre_adj = new int[station_num_ * 2];
+            auto** pre_node = new ArcNode*[station_num_ * 2];
+            for (int i = 0; i < station_num_ * 2; i++) {
+                distance[i] = 10000000;
+                pre_adj[i] = -1;
+                pre_node[i] = nullptr;
             }
-            else {
-                for (auto pre_arc_node : pre_list[k]) {
-                    weight = distance[k] + getEdgeWeight(pre_arc_node, arc_node, weight_mode);
+
+            priority_queue< pair<double, int> > q;
+            distance[start_adj] = 0.0;
+            q.emplace(0.0, start_adj);
+
+            // Dijkstra algorithm
+            while (!q.empty()) {
+                int k = q.top().second;
+                q.pop();
+
+                for (ArcNode *arc_node = adj_list_[k].next; arc_node != nullptr; arc_node = arc_node->next) {
+                    double weight = distance[k] + getEdgeWeight(arc_node, weight_mode);
                     if (weight < distance[arc_node->adj_vex]) {
                         distance[arc_node->adj_vex] = weight;
+                        pre_adj[arc_node->adj_vex] = k;
                         pre_node[arc_node->adj_vex] = arc_node;
-                        pre_node[k] = pre_arc_node;
                         q.emplace(-weight, arc_node->adj_vex);
                     }
                 }
-                pre_list[arc_node->adj_vex].append(arc_node);
             }
-        }
-    }
 
-    // get path
-    int current_station_id = end_station_id;
-    while (current_station_id != start_station_id) {
-        path.append(pre_node[current_station_id]->edge);
-        current_station_id = pre_node[current_station_id]->edge->getStationId();
+            if (distance[end_adj] < ans) {
+                ans = distance[end_adj];
+                path.clear();
+                while (end_adj != start_adj) {
+                    if (pre_node[end_adj]->edge != nullptr) {
+                        path.append(pre_node[end_adj]->edge);
+                    }
+                    end_adj = pre_adj[end_adj];
+                }
+            }
+
+            delete[] distance;
+            delete[] pre_adj;
+            delete[] pre_node;
+        }
     }
 
     // reverse path
@@ -236,12 +235,6 @@ double Net::getShortestPath(int start_station_id, int end_station_id, QList<Edge
         path[i] = path[path.size() - i - 1];
         path[path.size() - i - 1] = temp;
     }
-
-    double ans = distance[end_station_id];
-
-    delete[] distance;
-    delete[] vis;
-    delete[] pre_node;
 
     return ans;
 }
@@ -252,41 +245,77 @@ double Net::getShortestPath(const QString& start_station_name, const QString& en
 }
 
 void Net::buildAdjList() {
-    adj_list_ = new ArcNode[station_num_];
+    station_line_to_adj_ = new QMap< pair<int, int>, int >;
+
+    int sum = 0;
+    auto *cnt = new QList<int>[station_num_];
+    for (auto line : *lines_) {
+        for (auto station_id : *line->getStationsId()) {
+            cnt[station_id].append(line->getId());
+            sum++;
+        }
+    }
+    adj_list_ = new ArcNode[sum];
+    int tot = 0;
     for (int i = 0; i < station_num_; i++) {
-        adj_list_[i].adj_vex = i;
-        adj_list_[i].edge = nullptr;
-        adj_list_[i].next = nullptr;
+        for (int j = 0; j < cnt[i].size(); j++) {
+            adj_list_[tot].adj_vex = tot;
+            adj_list_[tot].edge = nullptr;
+            adj_list_[tot].next = nullptr;
+            station_line_to_adj_->insert(std::make_pair(i, cnt[i][j]), tot);
+            tot++;
+        }
     }
+
     for (auto edge : *edges_) {
-        ArcNode *arc_node = new ArcNode();
-        arc_node->adj_vex = edge->getNextStationId();
+        auto *arc_node = new ArcNode;
+        int from = edge->getStationId();
+        int to = edge->getNextStationId();
+        int line_id = edge->getLineId();
+        int from_adj = station_line_to_adj_->value(std::make_pair(from, line_id));
+        int to_adj = station_line_to_adj_->value(std::make_pair(to, line_id));
+        arc_node->adj_vex = to_adj;
         arc_node->edge = edge;
-        arc_node->next = adj_list_[edge->getStationId()].next;
-        adj_list_[edge->getStationId()].next = arc_node;
+        arc_node->next = adj_list_[from_adj].next;
+        adj_list_[from_adj].next = arc_node;
     }
+    // 插入换乘边
+    for (int i = 0; i < station_num_; i++) {
+        for (int j = 0; j < cnt[i].size(); j++) {
+            int from_adj = station_line_to_adj_->value(std::make_pair(i, cnt[i][j]));
+            for (int k = 0; k < cnt[i].size(); k++) {
+                if (k == j) {
+                    continue;
+                }
+                int to_adj = station_line_to_adj_->value(std::make_pair(i, cnt[i][k]));
+                auto *arc_node = new ArcNode;
+                arc_node->adj_vex = to_adj;
+                arc_node->edge = nullptr;
+                arc_node->next = adj_list_[from_adj].next;
+                adj_list_[from_adj].next = arc_node;
+            }
+        }
+    }
+    delete[] cnt;
 }
 
-double Net::getEdgeWeight(ArcNode *pre_node, ArcNode *arc_node, int weight_mode) {
+double Net::getEdgeWeight(ArcNode *arc_node, int weight_mode) {
     if (arc_node == nullptr) {
         return -1;
     }
     switch (weight_mode) {
         case 0:
-            if (pre_node == nullptr) {
-                return 1.0 * arc_node->edge->getWeightDistance() / TRAIN_SPEED;
-            }
-            if (pre_node->edge->getLineId() != arc_node->edge->getLineId()) {
-                return 1.0 * arc_node->edge->getWeightDistance() / TRAIN_SPEED + TRANSFER_TIME;
+            if (arc_node->edge == nullptr) {
+                return TRANSFER_TIME;
             }
             return 1.0 * arc_node->edge->getWeightDistance() / TRAIN_SPEED;
         case 1:
-            return arc_node->edge->getWeightDistance();
-        case 2:
-            if (pre_node == nullptr) {
+            if (arc_node->edge == nullptr) {
                 return 0;
             }
-            if (pre_node->edge->getLineId() != arc_node->edge->getLineId()) {
+            return arc_node->edge->getWeightDistance();
+        case 2:
+            if (arc_node->edge == nullptr) {
                 return 1;
             }
             return 0;
@@ -408,6 +437,15 @@ int Net::getSinglePathTimeMinutes(const QList<Edge *> &path) const {
         distance += edge->getWeightDistance();
     }
     return distance / TRAIN_SPEED / 60;
+}
+
+void Net::getLinesOfStation(int station_id, QList<Line *> &lines) const {
+    lines.clear();
+    for (auto line : *lines_) {
+        if (line->getStationsId()->contains(station_id)) {
+            lines.append(line);
+        }
+    }
 }
 
 

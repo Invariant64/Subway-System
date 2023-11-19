@@ -8,6 +8,7 @@
 
 #include <QString>
 #include <QList>
+#include <queue>
 #include "Station.h"
 #include "Edge.h"
 #include "Line.h"
@@ -30,8 +31,9 @@ private:
     };
 
     ArcNode *adj_list_;
+    QMap< std::pair<int, int>, int > *station_line_to_adj_;
 
-    static double getEdgeWeight(ArcNode *pre_node, ArcNode *arc_node, int weight_mode);
+    static double getEdgeWeight(ArcNode *arc_node, int weight_mode);
 
 public:
     Net();
@@ -75,6 +77,8 @@ public:
     QString getEndStationNameByEdge(Edge* edge) const;
 
     int getSinglePathTimeMinutes(const QList<Edge*>& path) const;
+
+    void getLinesOfStation(int station_id, QList<Line*>& lines) const;
 
     constexpr static const double TRAIN_SPEED = 35.0 * 1000 / 60 / 60; // 35 km/h
     constexpr static const double TRANSFER_TIME = 3 * 60; // 3 minutes
