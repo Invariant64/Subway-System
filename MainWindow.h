@@ -26,6 +26,8 @@
 #include "PathTabWidget.h"
 #include "TicketGroupBox.h"
 #include "PathInfoBox.h"
+#include "TicketWindow.h"
+#include "SightSearchBox.h"
 
 class MainWindow : public QWidget {
     Q_OBJECT
@@ -51,10 +53,18 @@ private:
 
     TicketGroupBox *ticket_group_box_;
 
+    TicketWindow *ticket_window_;
+
+    SightSearchBox *sight_search_box_;
+
+    Net *net_;
+
     void initUI();
     void initConnect();
 
-    Net *net_;
+    bool checkStationIsSame();
+
+    void setStation(const QString& station_name, int is_start);
 
 private slots:
     void onComboBoxStartLineIndexChanged(int index); // 当起始线路下拉框的选项改变时

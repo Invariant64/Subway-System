@@ -18,30 +18,35 @@ Net::Net() {
     stations_ = new QMap<int, Station*>;
     edges_ = new QMap<int, Edge*>;
     lines_ = new QMap<int, Line*>;
+    sights_ = new QMap<QString, Sight*>;
     station_name_to_id_ = new QMap<QString, int>;
 }
 
-Net::Net(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name) {
+Net::Net(const QString& stations_file_name, const QString& edges_file_name,
+         const QString& lines_file_name, const QString& sights_file_name) {
     station_num_ = 0;
     edge_num_ = 0;
     stations_ = new QMap<int, Station*>;
     edges_ = new QMap<int, Edge*>;
     lines_ = new QMap<int, Line*>;
+    sights_ = new QMap<QString, Sight*>;
     station_name_to_id_ = new QMap<QString, int>;
 
-    loadNetFromFile(stations_file_name, edges_file_name, lines_file_name);
+    loadNetFromFile(stations_file_name, edges_file_name, lines_file_name, sights_file_name);
 }
 
 Net::~Net() {
     delete stations_;
     delete edges_;
     delete lines_;
+    delete sights_;
     delete station_name_to_id_;
     delete[] adj_list_;
 }
 
 // load stations and edges from file
-bool Net::loadNetFromFile(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name) {
+bool Net::loadNetFromFile(const QString& stations_file_name, const QString& edges_file_name,
+                          const QString& lines_file_name, const QString& sights_file_name) {
     if (!loadStationsFromFile(stations_file_name)) {
         return false;
     }
@@ -49,6 +54,9 @@ bool Net::loadNetFromFile(const QString& stations_file_name, const QString& edge
         return false;
     }
     if (!loadLinesFromFile(lines_file_name)) {
+        return false;
+    }
+    if (!loadSightsFromFile(sights_file_name)) {
         return false;
     }
     buildAdjList();
@@ -138,6 +146,29 @@ bool Net::loadLinesFromFile(const QString& file_name) {
     return true;
 }
 
+bool Net::loadSightsFromFile(const QString& file_name) {
+    QFile file(file_name);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList fields = line.split(" ");
+        if (fields.size() != 5) {
+            return false;
+        }
+        int sight_id = fields[0].toInt();
+        QString sight_name = fields[1];
+        QString sight_description = fields[2];
+        double sight_price = fields[3].toDouble();
+        int sight_related_station_id = fields[4].toInt();
+        Sight *sight = new Sight(sight_id, sight_name, sight_description, sight_price, sight_related_station_id);
+        sights_->insert(sight_name, sight);
+    }
+    return true;
+}
+
 void Net::addStation(Station *station) {
     station_num_++;
     stations_->insert(station->getId(), station);
@@ -161,8 +192,16 @@ QMap<int, Line*> *Net::getLines() const {
     return lines_;
 }
 
+QMap<QString, Sight*> *Net::getSights() const {
+    return sights_;
+}
+
 Station* Net::getStationById(int id) const {
-    return stations_->value(id);
+    auto it = stations_->find(id);
+    if (it == stations_->end()) {
+        return nullptr;
+    }
+    return it.value();
 }
 
 Edge* Net::getEdgeById(int id) const {
@@ -457,6 +496,14 @@ double Net::getPriceByDistance(double distance) {
     if (distance <= 52000) return 7;
     if (distance <= 72000) return 8;
     return 9;
+}
+
+Station* Net::getStationBySightName(const QString &sight) const {
+    auto it = sights_->find(sight);
+    if (it == sights_->end()) {
+        return nullptr;
+    }
+    return getStationById(it.value()->getRelatedStationId());
 }
 
 

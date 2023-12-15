@@ -6,10 +6,12 @@
 
 #define INPUT_LINE_FILE "line.txt"
 #define INPUT_POSITION_FILE "position.txt"
+#define INPUT_SIGHT_FILE "sight.txt"
 
 #define OUTPUT_STATION_FILE "../net-data/data.station"
 #define OUTPUT_EDGE_FILE "../net-data/data.edge"
 #define OUTPUT_LINE_FILE "../net-data/data.line"
+#define OUTPUT_SIGHT_FILE "../net-data/data.sight"
 
 using std::string;
 using std::cout;
@@ -100,6 +102,7 @@ int main() {
         fp >> station >> x >> y;
         station_positions.insert(std::make_pair(station, std::make_pair(x, y)));
     }
+    fp.close();
 
     // write stations
     of.open(OUTPUT_STATION_FILE, std::ios::out);
@@ -119,5 +122,26 @@ int main() {
         of << "\n";
     }
     of.close();
-    
+
+    // write sights
+    of.open(OUTPUT_SIGHT_FILE, std::ios::out);
+    fp.open(INPUT_SIGHT_FILE, std::ios::in);
+    if (!fp.is_open()) {
+        std::cout << "Error: " << INPUT_SIGHT_FILE << "not found" << std::endl;
+        return 1;
+    }
+    int sight_id = 0;
+    while (!fp.eof()) {
+        string sight_name, sight_description, sight_station_name;
+        double sight_price;
+        fp >> sight_name >> sight_description >> sight_price >> sight_station_name;
+        if (station_to_id.find(sight_station_name) == station_to_id.end()) {
+            std::cout << "Error: " << sight_name << " not found" << endl;
+            return 1;
+        }
+        of << sight_id << ' ' << sight_name << ' ' << sight_description << ' ' << sight_price << ' ' << station_to_id[sight_station_name] << "\n";
+        sight_id++;
+    }
+    of.close();
+    fp.close();
 }

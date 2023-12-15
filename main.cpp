@@ -6,13 +6,14 @@
 #define Station_File_Path "/Users/noah/Projects/Subway-System/net-data/data.station"
 #define Edge_File_Path "/Users/noah/Projects/Subway-System/net-data/data.edge"
 #define Line_File_Path "/Users/noah/Projects/Subway-System/net-data/data.line"
+#define Sight_File_Path "/Users/noah/Projects/Subway-System/net-data/data.sight"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     MainWindow main_window;
 
-    Net *net = new Net(Station_File_Path, Edge_File_Path, Line_File_Path);
+    Net *net = new Net(Station_File_Path, Edge_File_Path, Line_File_Path, Sight_File_Path);
     main_window.init(net);
 
     main_window.show();

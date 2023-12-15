@@ -12,6 +12,7 @@
 #include "Station.h"
 #include "Edge.h"
 #include "Line.h"
+#include "Sight.h"
 
 class Net {
 private:
@@ -21,6 +22,7 @@ private:
     QMap<int, Station*> *stations_;
     QMap<int, Edge*> *edges_;
     QMap<int, Line*> *lines_;
+    QMap<QString, Sight*> *sights_;
 
     QMap<QString, int> *station_name_to_id_;
 
@@ -38,12 +40,13 @@ private:
 public:
     Net();
     ~Net();
-    explicit Net(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name);
+    explicit Net(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name, const QString& sights_file_name);
 
-    bool loadNetFromFile(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name);
+    bool loadNetFromFile(const QString& stations_file_name, const QString& edges_file_name, const QString& lines_file_name, const QString& sights_file_name);
     bool loadStationsFromFile(const QString& file_name);
     bool loadEdgesFromFile(const QString& file_name);
     bool loadLinesFromFile(const QString& file_name);
+    bool loadSightsFromFile(const QString& file_name);
 
     void addStation(Station *station);
     void addEdge(Edge *edge);
@@ -51,6 +54,7 @@ public:
     QMap<int, Station*> *getStations() const;
     QMap<int, Edge*> *getEdges() const;
     QMap<int, Line*> *getLines() const;
+    QMap<QString, Sight*> *getSights() const;
 
     Station* getStationById(int id) const;
     Edge* getEdgeById(int id) const;
@@ -81,6 +85,8 @@ public:
     void getLinesOfStation(int station_id, QList<Line*>& lines) const;
 
     static double getPriceByDistance(double distance);
+
+    Station* getStationBySightName(const QString& sight) const;
 
     constexpr static const double TRAIN_SPEED = 35.0 * 1000 / 60 / 60; // 35 km/h
     constexpr static const double TRANSFER_TIME = 3 * 60; // 3 minutes
