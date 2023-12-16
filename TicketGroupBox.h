@@ -21,7 +21,6 @@ private:
     QLineEdit *line_edit_start_;
     QLineEdit *line_edit_end_;
     QLineEdit *line_edit_price_;
-    QPushButton *button_buy_;
 
     double price_;
 
@@ -29,10 +28,16 @@ private:
     void initConnect();
 
 public:
+    QPushButton *button_open_ticket_window_;
+
     TicketGroupBox();
     ~TicketGroupBox();
 
     void setAll(QString start, QString end, double price);
+
+    bool isEmpty() const;
+
+    double getPrice() const;
 };
 
 

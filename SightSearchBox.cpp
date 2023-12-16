@@ -104,6 +104,7 @@ void SightSearchBox::setNet(Net *net) {
     }
     completer_ = new QCompleter(sight_list, this);
     completer_->setMaxVisibleItems(7);
+    completer_->setFilterMode(Qt::MatchContains);
     combo_box_sight_->setCompleter(completer_);
     combo_box_sight_->lineEdit()->setPlaceholderText("请输入景点名称");
 

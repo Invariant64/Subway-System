@@ -136,7 +136,7 @@ int main() {
         double sight_price;
         fp >> sight_name >> sight_description >> sight_price >> sight_station_name;
         if (station_to_id.find(sight_station_name) == station_to_id.end()) {
-            std::cout << "Error: " << sight_name << " not found" << endl;
+            std::cout << "Error: " << sight_station_name << " not found" << endl;
             return 1;
         }
         of << sight_id << ' ' << sight_name << ' ' << sight_description << ' ' << sight_price << ' ' << station_to_id[sight_station_name] << "\n";

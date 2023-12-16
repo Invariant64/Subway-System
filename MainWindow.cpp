@@ -92,7 +92,6 @@ void MainWindow::initUI() {
     ticket_group_box_ = new TicketGroupBox();
 
     ticket_window_ = new TicketWindow();
-    ticket_window_->setNet(net_);
     ticket_window_->hide();
 
     auto grid_layout_station = new QGridLayout();
@@ -185,6 +184,7 @@ void MainWindow::initConnect() {
     });
 
     connect(ticket_group_box_->button_open_ticket_window_, &QPushButton::clicked, this, [=](){
+        ticket_window_->setAll(combo_box_start_->currentText(), combo_box_end_->currentText(), ticket_group_box_->getPrice());
         ticket_window_->show();
     });
 
@@ -250,7 +250,9 @@ void MainWindow::onTabWidgetCurrentChanged(int index) {
     net_->statPath(path, station_num, transfer_num, time, distance);
     path_info_box_->setAll(time, distance, transfer_num, station_num);
 
-    ticket_group_box_->setAll(combo_box_start_->currentText(), combo_box_end_->currentText(), Net::getPriceByDistance(distance));
+    double price = Net::getPriceByDistance(distance);
+    ticket_group_box_->setAll(combo_box_start_->currentText(), combo_box_end_->currentText(), price);
+    ticket_window_->setAll(combo_box_start_->currentText(), combo_box_end_->currentText(), price);
 }
 
 bool MainWindow::checkStationIsSame() {
